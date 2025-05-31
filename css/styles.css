@@ -22,6 +22,9 @@ body {
 }
 
 body.darkmode {
+  --prayer-bg: linear-gradient(90deg, #2d2617 0%, #3a2f1a 100%);
+  --border-color: #a67c2e;
+  --shadow: 0 4px 24px #a67c2e77, 0 2px 12px #0008;
   background-color: #18150e;
   background-image: url('../assets/patterns/islamic-bg-dark.png');
   color: #f6eec7;
@@ -41,10 +44,10 @@ header {
 }
 
 body.darkmode header {
-  background: linear-gradient(90deg, #2d2617 0%, #3a2f1a 100%) !important;
+  background: var(--prayer-bg) !important;
+  border-bottom: 1.5px solid var(--border-color);
+  box-shadow: var(--shadow);
   color: #e0c97f !important;
-  border-bottom: 1.5px solid #a67c2e;
-  box-shadow: 0 4px 24px #a67c2e77, 0 2px 12px #0008;
   filter: brightness(1.15) saturate(1.2);
 }
 
@@ -209,6 +212,7 @@ body.darkmode #close-profile-sidebar {
   background: #a67c2e;
   color: #23201a;
 }
+
 /* =====================
    ...existing code...
    ===================== */
@@ -547,94 +551,6 @@ body.darkmode #sidebar-toggle:hover, body.darkmode #profile-toggle:hover {
   padding: 1.2rem 1.5rem;
   width: 100%;
 }
-.header-content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  position: relative;
-}
-.darkmode-toggle-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 60px;
-  justify-content: center;
-}
-.darkmode-toggle {
-  width: 54px;
-  height: 32px;
-  background: #e0c97f;
-  border: none;
-  border-radius: 16px;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 2px 8px #e0c97f33;
-}
-.darkmode-emoji {
-  font-size: 1.25rem;
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  transition: opacity 0.2s, z-index 0.2s;
-  z-index: 2;
-  pointer-events: none;
-}
-.sun { left: 3px; top: 3px; opacity: 1; }
-.moon { right: 3px; top: 3px; opacity: 0; }
-.darkmode-knob {
-  display: block;
-  width: 26px;
-  height: 26px;
-  background: #fff;
-  border-radius: 50%;
-  position: absolute;
-  left: 3px;
-  top: 3px;
-  box-shadow: 0 1px 4px #a67c2e33;
-  transition: left 0.2s;
-}
-.app-title {
-  margin: 0;
-  text-align: center;
-  flex: 1;
-  font-size: 2.1rem;
-  color: #a67c2e;
-  text-shadow: 0 2px 12px #e0c97f77;
-  letter-spacing: 1.5px;
-  font-family: 'Amiri', serif;
-}
-.profile-slider-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  justify-content: center;
-  align-items: center;
-  touch-action: manipulation;
-  padding: 12px;
-}
-.profile-slider-btn .bar {
-  display: block;
-  width: 28px;
-  height: 4px;
-  background: #a67c2e;
-}
 
 /* Footer styles */
 .main-footer {
@@ -917,4 +833,36 @@ body.darkmode .tasbeeh-label,
 body.darkmode label[for="tasbeeh-type-select"],
 body.darkmode label[for="target-select"] {
   color: #e0c97f !important;
+}
+
+/* Remove duplicate/feature styles: .prayer-active, .pulse-animation, .label-section, .skeleton-loading, .stats-card, .stats-icon, .stats-value, .stats-label, .stats-trend, .progress-bar, .progress-fill, .chart-period-select, .chart-container */
+
+/* Consolidated dark mode custom properties */
+body.darkmode {
+  --prayer-bg: linear-gradient(90deg, #2d2617 0%, #3a2f1a 100%);
+  --border-color: #a67c2e;
+  --shadow: 0 4px 24px #a67c2e77, 0 2px 12px #0008;
+  background-color: #18150e;
+  background-image: url('../assets/patterns/islamic-bg-dark.png');
+  color: #f6eec7;
+}
+
+header { background: var(--header-bg); }
+body.darkmode header {
+  background: var(--prayer-bg) !important;
+  border-bottom: 1.5px solid var(--border-color);
+  box-shadow: var(--shadow);
+  color: #e0c97f !important;
+  filter: brightness(1.15) saturate(1.2);
+}
+
+/* Simplified and combined animation for pulse and button hover */
+@keyframes element-animations {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse-animation, button:hover {
+  animation: element-animations 1.5s ease;
 }

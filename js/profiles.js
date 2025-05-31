@@ -1,4 +1,60 @@
+// Chart.js Integration: Add <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> to your main HTML file.
 // profiles.js - Profile Management and Settings
+// i18n translations object
+const translations = {
+  en: {
+    analytics: "Analytics",
+    switchProfile: "Switch Profile",
+    settings: "Settings",
+    calculationMethod: "Prayer Calculation Method",
+    favorites: "Favorites",
+    totalTasbeeh: "Total Tasbeeh",
+    prayerConsistency: "Prayer Consistency",
+    tasbeehDistribution: "Tasbeeh Distribution",
+    close: "Close",
+    addProfile: "Add Profile",
+    editProfile: "Edit Profile",
+    cancel: "Cancel",
+    save: "Save",
+    emailNotSet: "Email not set",
+    backups: "Backups",
+    export: "Export",
+    import: "Import",
+    backupFileCount: "Files: ", // Added for backup modal
+    // Add more as needed
+  },
+  ar: {
+    analytics: "التحليلات",
+    switchProfile: "تبديل الملف الشخصي",
+    settings: "الإعدادات",
+    calculationMethod: "طريقة حساب أوقات الصلاة",
+    favorites: "المفضلة",
+    totalTasbeeh: "إجمالي التسبيح",
+    prayerConsistency: "انتظام الصلاة",
+    tasbeehDistribution: "توزيع التسبيح",
+    close: "إغلاق",
+    addProfile: "إضافة ملف شخصي",
+    editProfile: "تعديل الملف الشخصي",
+    cancel: "إلغاء",
+    save: "حفظ",
+    emailNotSet: "لم يتم تعيين البريد الإلكتروني",
+    backups: "النسخ الاحتياطية",
+    export: "تصدير",
+    import: "استيراد",
+    backupFileCount: "عدد الملفات: ", // Added for backup modal
+    // Add more as needed
+  }
+};
+
+function updateI18n(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+}
+
 class ProfileManager {
   constructor() {
     this.migrateExistingData();
@@ -79,16 +135,17 @@ class ProfileManager {
   initializeUI() {
     this.updateCurrentUserDisplay();
     const currentProfile = this.getCurrentProfile();
-    
     document.getElementById('calculation-method').value = currentProfile.settings.calculationMethod;
     document.getElementById('language-select').value = currentProfile.settings.language;
     document.getElementById('prayer-notifications').checked = currentProfile.settings.notifications.prayer;
     document.getElementById('adhkar-notifications').checked = currentProfile.settings.notifications.adhkar;
-    
     // Set dark mode
     if (currentProfile.settings.darkMode !== undefined) {
       document.documentElement.classList.toggle('dark', currentProfile.settings.darkMode);
     }
+    // Update i18n
+    updateI18n(currentProfile.settings.language);
+    this.updateStatisticsDisplay();
   }
 
   bindEvents() {
@@ -96,7 +153,10 @@ class ProfileManager {
     document.getElementById('close-profile-modal')?.addEventListener('click', () => this.hideProfileSwitchModal());
     
     document.getElementById('calculation-method')?.addEventListener('change', (e) => this.updateSetting('calculationMethod', e.target.value));
-    document.getElementById('language-select')?.addEventListener('change', (e) => this.updateSetting('language', e.target.value));
+    document.getElementById('language-select')?.addEventListener('change', (e) => {
+      this.updateSetting('language', e.target.value);
+      updateI18n(e.target.value);
+    });
     document.getElementById('prayer-notifications')?.addEventListener('change', (e) => this.updateNotification('prayer', e.target.checked));
     document.getElementById('adhkar-notifications')?.addEventListener('change', (e) => this.updateNotification('adhkar', e.target.checked));
     
@@ -106,6 +166,7 @@ class ProfileManager {
     document.getElementById('export-profiles')?.addEventListener('click', () => this.exportProfiles());
     document.getElementById('import-profiles')?.addEventListener('click', () => this.importProfiles());
     document.getElementById('view-backups')?.addEventListener('click', () => this.showBackupListModal());
+    document.getElementById('profile-analytics')?.addEventListener('click', () => this.showProfileAnalytics());
   }
 
   getCurrentProfile() {
@@ -444,30 +505,30 @@ class ProfileManager {
         this.showToast('لا توجد نسخ احتياطية متاحة', 'error');
         return;
       }
-
+      const currentProfile = this.getCurrentProfile();
+      const lang = currentProfile.settings.language || 'ar';
       const modal = document.createElement('div');
       modal.className = 'fixed inset-0 bg-black/50 z-[60] flex items-center justify-center';
       modal.innerHTML = `
         <div class="bg-cream dark:bg-darkbg p-6 rounded-xl w-80 max-w-[90%]">
-          <h3 class="text-xl font-bold text-golden-dark dark:text-golden-light mb-4">النسخ الاحتياطية المتوفرة</h3>
+          <h3 class="text-xl font-bold text-golden-dark dark:text-golden-light mb-4" data-i18n="backups">النسخ الاحتياطية المتوفرة</h3>
           <div class="space-y-2 max-h-60 overflow-y-auto mb-4">
             ${backups.map((backup, index) => `
               <button class="w-full text-right bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light p-3 rounded-lg hover:bg-golden-light/10 dark:hover:bg-golden/10 transition-all duration-300" data-backup-index="${index}">
-                <div class="font-bold">${new Date(backup.timestamp).toLocaleString('ar-SA')}</div>
-                <div class="text-sm text-golden/70 dark:text-golden-light/70">عدد الملفات: ${backup.profiles.length}</div>
+                <div class="font-bold">${new Date(backup.timestamp).toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US')}</div>
+                <div class="text-sm text-golden/70 dark:text-golden-light/70" data-i18n="backupFileCount">عدد الملفات: ${backup.profiles.length}</div>
               </button>
             `).join('')}
           </div>
           <div class="flex justify-end gap-2">
-            <button class="cancel-btn bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg">
+            <button class="cancel-btn bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg" data-i18n="cancel">
               إلغاء
             </button>
           </div>
         </div>
       `;
-
       document.body.appendChild(modal);
-
+      updateI18n(lang);
       modal.querySelectorAll('[data-backup-index]').forEach(btn => {
         btn.addEventListener('click', () => {
           const index = parseInt(btn.dataset.backupIndex);
@@ -475,15 +536,130 @@ class ProfileManager {
           modal.remove();
         });
       });
-
       modal.querySelector('.cancel-btn').addEventListener('click', () => {
         modal.remove();
       });
-
     } catch (error) {
       console.error('Failed to show backup list:', error);
       this.showToast('فشل عرض النسخ الاحتياطية', 'error');
     }
+  }
+
+  // Profile analytics modal
+  showProfileAnalytics() {
+    const profile = this.getCurrentProfile();
+    const lang = profile.settings.language || 'ar';
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 z-[60] flex items-center justify-center';
+    modal.innerHTML = `
+      <div class="bg-cream dark:bg-darkbg p-6 rounded-xl w-90 max-w-[95%]">
+        <h3 class="text-xl font-bold text-golden-dark dark:text-golden-light mb-4">
+          ${profile.name} <span data-i18n="analytics">التحليلات</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-white/80 dark:bg-darkbg/80 p-4 rounded-lg border border-golden-light">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-golden-dark dark:text-golden-light">
+                ${profile.tasbeehStats.totalCount || 0}
+              </div>
+              <p class="text-sm text-golden/80" data-i18n="totalTasbeeh">Total Tasbeeh</p>
+            </div>
+          </div>
+          <div class="bg-white/80 dark:bg-darkbg/80 p-4 rounded-lg border border-golden-light">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-golden-dark dark:text-golden-light">
+                ${(profile.tasbeehStats.favorites && profile.tasbeehStats.favorites.length) || 0}
+              </div>
+              <p class="text-sm text-golden/80" data-i18n="favorites">Favorites</p>
+            </div>
+          </div>
+          <div class="bg-white/80 dark:bg-darkbg/80 p-4 rounded-lg border border-golden-light">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-golden-dark dark:text-golden-light">
+                ${this.getPrayerConsistency(profile)}
+              </div>
+              <p class="text-sm text-golden/80" data-i18n="prayerConsistency">Prayer Consistency</p>
+            </div>
+          </div>
+        </div>
+        <h4 class="font-bold mb-2" data-i18n="tasbeehDistribution">Tasbeeh Distribution</h4>
+        <div class="h-40 mb-4" id="tasbeeh-chart"></div>
+        <div class="flex justify-end">
+          <button class="close-btn bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg" data-i18n="close">
+            Close
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    this.renderTasbeehChart(profile, modal.querySelector('#tasbeeh-chart'));
+    updateI18n(lang);
+    modal.querySelector('.close-btn').addEventListener('click', () => {
+      modal.remove();
+    });
+  }
+
+  renderTasbeehChart(profile, container) {
+    const types = {};
+    if (profile.tasbeehStats && Array.isArray(profile.tasbeehStats.history)) {
+      profile.tasbeehStats.history.forEach(entry => {
+        types[entry.type] = (types[entry.type] || 0) + entry.count;
+      });
+    }
+    if (window.Chart && container) {
+      const canvas = document.createElement('canvas');
+      container.appendChild(canvas);
+      new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(types),
+          datasets: [{
+            data: Object.values(types),
+            backgroundColor: [
+              '#a67c2e', '#e0c97f', '#7c5c1e', '#f9e7b3', '#d4b96a'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right' }
+          }
+        }
+      });
+    } else if (container) {
+      container.innerHTML = '<p class="text-center py-8">Chart library not loaded</p>';
+    }
+  }
+
+  getPrayerConsistency(profile) {
+    if (!profile.prayerStats) return "0%";
+    const totalPrayers = Object.values(profile.prayerStats).reduce((sum, val) => sum + val, 0);
+    const maxPossible = Object.keys(profile.prayerStats).length * 30; // 30 days
+    return Math.round((totalPrayers / maxPossible) * 100) + '%';
+  }
+
+  updateStatisticsDisplay() {
+    const profile = this.getCurrentProfile();
+    // Update statistics
+    document.getElementById('stat-total-tasbeeh').textContent = 
+      profile.tasbeehStats?.totalCount || 0;
+    document.getElementById('stat-favorites').textContent = 
+      profile.tasbeehStats?.favorites?.length || 0;
+    const consistency = this.calculatePrayerConsistency(profile);
+    document.getElementById('stat-prayer-consistency').textContent = 
+      `${consistency}%`;
+    document.getElementById('prayer-progress').style.width = `${consistency}%`;
+    // Render chart
+    this.renderTasbeehChart(profile);
+  }
+
+  calculatePrayerConsistency(profile) {
+    if (!profile.prayerStats) return 0;
+    const totalDays = Object.keys(profile.prayerStats).length;
+    const totalPrayers = Object.values(profile.prayerStats).reduce((sum, count) => sum + count, 0);
+    return Math.round((totalPrayers / (totalDays * 5)) * 100);
   }
 
   saveProfiles() {
@@ -513,7 +689,147 @@ class ProfileManager {
   }
 }
 
+// Add user authentication and JSON-based storage
+class AuthManager {
+  constructor() {
+    this.users = JSON.parse(localStorage.getItem('users')) || [];
+    this.currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+    this.initAuthUI();
+  }
+
+  syncProfileWithUser(user) {
+    // Find or create a profile for the user
+    const pm = window.profileManager;
+    let profile = pm.profiles.find(p => p.email === user.email);
+    if (!profile) {
+      profile = {
+        id: 'profile_' + Date.now(),
+        name: user.name,
+        email: user.email,
+        settings: {
+          calculationMethod: '4',
+          language: 'ar',
+          notifications: { prayer: true, adhkar: true },
+          location: null
+        },
+        tasbeehStats: { totalCount: 0, history: [], favorites: [] }
+      };
+      pm.profiles.push(profile);
+    }
+    pm.currentProfileId = profile.id;
+    pm.saveProfiles();
+    pm.initializeUI();
+    document.dispatchEvent(new Event('profileChanged'));
+  }
+
+  saveUsers() {
+    localStorage.setItem('users', JSON.stringify(this.users));
+  }
+
+  saveCurrentUser(user) {
+    this.currentUser = user;
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+
+  signup(name, email, password) {
+    if (this.users.find(u => u.email === email)) {
+      return { success: false, message: 'Email already exists.' };
+    }
+    const user = {
+      id: Date.now().toString(),
+      name,
+      email,
+      password, // In production, hash this!
+      stats: { tasbeeh: 0, prayers: 0 }
+    };
+    this.users.push(user);
+    this.saveUsers();
+    this.saveCurrentUser(user);
+    this.syncProfileWithUser(user);
+    return { success: true };
+  }
+
+  login(email, password) {
+    const user = this.users.find(u => u.email === email && u.password === password);
+    if (!user) return { success: false, message: 'Invalid credentials.' };
+    this.saveCurrentUser(user);
+    this.syncProfileWithUser(user);
+    return { success: true };
+  }
+
+  logout() {
+    this.currentUser = null;
+    localStorage.removeItem('currentUser');
+  }
+
+  initAuthUI() {
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const showSignup = document.getElementById('show-signup');
+    const showLogin = document.getElementById('show-login');
+    const userName = document.getElementById('current-user-name');
+    const userEmail = document.getElementById('current-user-email');
+    const userAvatar = document.getElementById('current-user-avatar');
+    const authSection = document.getElementById('auth-section');
+
+    if (showSignup) showSignup.onclick = (e) => {
+      e.preventDefault();
+      loginForm.classList.add('hidden');
+      signupForm.classList.remove('hidden');
+    };
+    if (showLogin) showLogin.onclick = (e) => {
+      e.preventDefault();
+      signupForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    };
+    if (loginForm) loginForm.onsubmit = (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const result = this.login(email, password);
+      if (result.success) {
+        loginForm.reset();
+        loginForm.classList.add('hidden');
+        authSection.classList.add('hidden');
+        if (userName) userName.textContent = this.currentUser.name;
+        if (userEmail) userEmail.textContent = this.currentUser.email;
+        if (userAvatar) userAvatar.textContent = this.currentUser.name[0] || '?';
+      } else {
+        alert(result.message);
+      }
+    };
+    if (signupForm) signupForm.onsubmit = (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      const result = this.signup(name, email, password);
+      if (result.success) {
+        signupForm.reset();
+        signupForm.classList.add('hidden');
+        authSection.classList.add('hidden');
+        if (userName) userName.textContent = name;
+        if (userEmail) userEmail.textContent = email;
+        if (userAvatar) userAvatar.textContent = name[0] || '?';
+      } else {
+        alert(result.message);
+      }
+    };
+    // Show user info if already logged in
+    if (this.currentUser) {
+      authSection.classList.add('hidden');
+      if (userName) userName.textContent = this.currentUser.name;
+      if (userEmail) userEmail.textContent = this.currentUser.email;
+      if (userAvatar) userAvatar.textContent = this.currentUser.name[0] || '?';
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   window.profileManager = new ProfileManager();
   window.profileManager.setupAutoBackup();
+  window.AuthManager = new AuthManager();
+  document.addEventListener('profileChanged', () => {
+    window.profileManager.updateStatisticsDisplay();
+  });
 });

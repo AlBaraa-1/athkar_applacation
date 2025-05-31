@@ -24,7 +24,30 @@ self.addEventListener('install', event => {
   );
 });
 
+// Add route-based caching
+const CACHE_PATTERNS = {
+  core: ['/', '/index.html'],
+  assets: [/(\.png|svg|jpg|jpeg)$/],
+  data: [/api\.aladhan\.com/]
+};
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response && response.status === 200) {
+    cache.put(request, response.clone());
+  }
+  return response;
+}
+
 self.addEventListener('fetch', event => {
+  if (CACHE_PATTERNS.data.some(p => p.test(event.request.url))) {
+    event.respondWith(cacheFirst(event.request));
+    return;
+  }
+  // Default: existing cache-then-network strategy
   event.respondWith(
     caches.match(event.request)
       .then(response => {

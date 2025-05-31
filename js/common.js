@@ -1,4 +1,4 @@
-// common.js - يحتوي على الوظائف المشتركة لجميع الصفحات (الوضع الليلي، القائمة الجانبية، القبلة والأوقات)
+// common.js - Shared logic for dark mode, sidebar, qibla, prayer times, and UI enhancements
 (function() {
   "use strict";
 
@@ -9,6 +9,10 @@
   const moonEmoji = document.getElementById('darkmode-emoji-moon');
   let darkOn = false;
   
+  /**
+   * Set dark mode on or off.
+   * @param {boolean} on
+   */
   function setDarkMode(on) {
     document.documentElement.classList.toggle('dark', on);
     document.body.classList.toggle('darkmode', on);
@@ -37,7 +41,8 @@
     // Store the preference
     localStorage.setItem('darkMode', on ? 'true' : 'false');
   }
-    if (darkToggleBtn) {
+
+  if (darkToggleBtn) {
     darkToggleBtn.onclick = function() {
       setDarkMode(!darkOn);
       // Hide the profile sidebar if open
@@ -76,7 +81,9 @@
       currentLocation = savedLocation;
     }
 
-    // Calculate Qibla direction (bearing from current location to Kaaba)
+    /**
+     * Calculate Qibla direction (bearing from current location to Kaaba).
+     */
     function calculateQiblaDirection(lat, lon) {
       const phi = lat * Math.PI / 180.0;
       const lambda = lon * Math.PI / 180.0;
@@ -90,7 +97,9 @@
       return psi;
     }
 
-    // Handle device orientation event to rotate Qibla arrow
+    /**
+     * Handle device orientation event to rotate Qibla arrow.
+     */
     function handleOrientation(e) {
       if (qiblaBearing === null) return;
       let heading;
@@ -107,7 +116,9 @@
       qiblaArrow.style.transform = `rotate(${rotation}deg)`;
     }
 
-    // Start listening to compass events (with permission for iOS if needed)
+    /**
+     * Start listening to compass events (with permission for iOS if needed).
+     */
     function startCompass() {
       // Hide the start button after starting
       const btn = document.getElementById('qibla-start');
@@ -131,7 +142,9 @@
       }
     }
 
-    // Fetch prayer times via Aladhan API
+    /**
+     * Fetch prayer times via Aladhan API.
+     */
     function fetchPrayerTimes(lat, lon) {
       // Use HTTPS and allow method selection
       const method = localStorage.getItem('currentPrayerMethod') || '4';
@@ -170,40 +183,31 @@
         });
     }
 
-    // Geolocation to get current coordinates and then fetch prayer times + compute Qibla
-    if (currentLocation) {
-      const { lat, lon } = currentLocation;
-      updateQiblaDirection(lat, lon);
-      fetchPrayerTimes(lat, lon);
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        currentLocation = { lat, lon };
-        localStorage.setItem('userLocation', JSON.stringify(currentLocation));
-        updateQiblaDirection(lat, lon);
-        fetchPrayerTimes(lat, lon);
-      }, error => {
-        console.warn('Geolocation error:', error);
-        prayerList.innerHTML = `
-          <li class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-200 text-center">
-            لم يتم تحديد الموقع. جاري استخدام الموقع الافتراضي.
-          </li>
-        `;
-        // Use default location (Mecca)
-        updateQiblaDirection(KAABA_LAT, KAABA_LON);
-        fetchPrayerTimes(KAABA_LAT, KAABA_LON);
-      });
-    } else {
-      prayerList.innerHTML = `
-        <li class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-200 text-center">
-          المتصفح لا يدعم تحديد الموقع. جاري استخدام الموقع الافتراضي.
-        </li>
-      `;
-      // Use default location (Mecca)
-      updateQiblaDirection(KAABA_LAT, KAABA_LON);
-      fetchPrayerTimes(KAABA_LAT, KAABA_LON);
+    /**
+     * Unified location handling (async).
+     */
+    async function fetchLocation() {
+      if (currentLocation) return currentLocation;
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        return {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        };
+      } catch {
+        return { lat: KAABA_LAT, lon: KAABA_LON }; // Default to Mecca
+      }
     }
+
+    // Geolocation to get current coordinates and then fetch prayer times + compute Qibla
+    (async function() {
+      const loc = await fetchLocation();
+      currentLocation = loc;
+      updateQiblaDirection(loc.lat, loc.lon);
+      fetchPrayerTimes(loc.lat, loc.lon);
+    })();
 
     function updateQiblaDirection(lat, lon) {
       // Calculate Qibla bearing from current location
@@ -236,6 +240,9 @@
     }
 
     // --- Next Prayer Countdown ---
+    /**
+     * Get next prayer time from timings object.
+     */
     function getNextPrayerTime(timings) {
       // Only consider Fajr, Dhuhr, Asr, Maghrib, Isha
       const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
@@ -258,6 +265,9 @@
       return nextPrayer;
     }
 
+    /**
+     * Update countdown timer for next prayer.
+     */
     function updateCountdown(prayerName, prayerTime) {
       const countdownDiv = document.getElementById('next-prayer-countdown');
       if (!countdownDiv) return;
@@ -276,6 +286,9 @@
     }
 
     // --- Insert new function to get current and next prayer ---
+    /**
+     * Get current and next prayer time from timings.
+     */
     function getCurrentAndNextPrayerTime(timings) {
       const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
       const now = new Date();
@@ -367,6 +380,9 @@
   }
 
   /*** Prayer Times Display Enhancement ***/
+  /**
+   * Create a prayer time card element.
+   */
   function createPrayerTimeCard(nameAr, time, isNext = false) {
     const card = document.createElement('li');
     card.className = `flex justify-between items-center p-3 rounded-lg transition-all duration-300 ${
@@ -593,7 +609,10 @@
   // Initialize sidebar
   SidebarManager.init();
 
-  // Ripple effect for buttons
+  /*** Ripple effect for buttons ***/
+  /**
+   * Ripple effect for buttons.
+   */
   function createRipple(event) {
     const button = event.currentTarget;
     const circle = document.createElement("span");
@@ -606,59 +625,41 @@
     circle.classList.add("ripple");
     
     const ripple = button.getElementsByClassName("ripple")[0];
-    if (ripple) ripple.remove();
-    
+    if (ripple) {
+      ripple.remove();
+    }
     button.appendChild(circle);
   }
-  
-  // Add ripple effect to all buttons
-  const buttons = document.getElementsByTagName("button");
-  for (const button of buttons) {
-    button.addEventListener("click", createRipple);
-  }
-  
-  // Add vibration on mobile for tasbeeh counter
-  if ('vibrate' in navigator) {
-    const progressCircle = document.getElementById('progress-circle-click');
-    if (progressCircle) {
-      progressCircle.addEventListener('click', function() {
-        navigator.vibrate(10);
-      });
-    }
-  }
 
-  // Hijri Date Display
+  // Attach ripple effect to all buttons
+  document.querySelectorAll('button, .ripple-btn').forEach(btn => {
+    btn.addEventListener('click', createRipple);
+  });
+
+  /**
+   * Update the Hijri date in the footer.
+   */
   function updateHijriDate() {
     const today = new Date();
-    const hijri = new Intl.DateTimeFormat('ar-TN-u-ca-islamic', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).format(today);
+    let hijri = '--/--/----';
+    try {
+      // Use Islamic calendar if supported
+      hijri = new Intl.DateTimeFormat('ar-TN-u-ca-islamic', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(today);
+    } catch (e) {
+      // Fallback: show Gregorian date
+      hijri = today.toLocaleDateString('ar-EG');
+    }
     var el = document.getElementById('hijri-date-display');
     if (el) el.textContent = hijri;
   }
-  updateHijriDate();
-  setInterval(updateHijriDate, 86400000); // Update daily
 
-  /*** Scrollbar Width Calculation ***/
-  function getScrollbarWidth() {
-    // Create a temporary div with scrollbar
-    const outer = document.createElement('div');
-    outer.style.visibility = 'hidden';
-    outer.style.overflow = 'scroll';
-    document.body.appendChild(outer);
-
-    // Create an inner div
-    const inner = document.createElement('div');
-    outer.appendChild(inner);
-
-    // Calculate scrollbar width
-    const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
-
-    // Clean up
-    outer.parentNode.removeChild(outer);
-
-    return scrollbarWidth;
-  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateHijriDate();
+    // Update daily (every 24h)
+    setInterval(updateHijriDate, 86400000);
+  });
 })();
