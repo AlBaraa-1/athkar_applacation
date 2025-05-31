@@ -1,0 +1,24 @@
+{
+  "name": "تطبيق الأذكار",
+  "short_name": "الأذكار",
+  "description": "تطبيق متكامل للأذكار وأوقات الصلاة",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f3e7",
+  "theme_color": "#a67c2e",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "lang": "ar",
+  "dir": "rtl",
+  "orientation": "portrait"
+}

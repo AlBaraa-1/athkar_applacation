@@ -1,0 +1,149 @@
+<aside id="profile-sidebar" class="fixed top-0 right-[-280px] w-[280px] h-full bg-cream/95 dark:bg-darkbg/95 border-l-2 border-golden-light dark:border-golden shadow-xl z-50 transition-all duration-300 overflow-y-auto">
+    <!-- User Profile Section -->
+    <div class="p-6 border-b border-golden/20 dark:border-golden-light/20">
+        <div class="flex items-center gap-3 mb-4">
+            <div id="current-user-avatar" class="w-12 h-12 rounded-full bg-golden-light dark:bg-golden flex items-center justify-center text-white text-xl font-bold">
+                <!-- Will be filled by JS -->
+            </div>
+            <div>
+                <h3 id="current-user-name" class="text-lg font-bold text-golden-dark dark:text-golden-light">
+                    <!-- Will be filled by JS -->
+                </h3>
+                <p id="current-user-email" class="text-sm text-golden/70 dark:text-golden-light/70">
+                    <!-- Will be filled by JS -->
+                </p>
+            </div>
+        </div>
+        <button id="switch-profile" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg hover:bg-golden-light/10 dark:hover:bg-golden/10 transition-all duration-300 flex items-center justify-center gap-2">
+            <i class="fas fa-users"></i>
+            <span>تبديل الملف الشخصي</span>
+        </button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="p-6 border-b border-golden/20 dark:border-golden-light/20">
+        <ul class="space-y-2">
+            <li>
+                <a href="index.html" class="flex items-center gap-3 text-golden-dark dark:text-golden-light hover:bg-golden-light/10 dark:hover:bg-golden/10 p-3 rounded-lg transition-all duration-300">
+                    <i class="fas fa-home w-6"></i>
+                    <span>الرئيسية</span>
+                </a>
+            </li>
+            <li>
+                <a href="tasbeeh.html" class="flex items-center gap-3 text-golden-dark dark:text-golden-light hover:bg-golden-light/10 dark:hover:bg-golden/10 p-3 rounded-lg transition-all duration-300">
+                    <i class="fas fa-prayer-beads w-6"></i>
+                    <span>عداد التسبيح</span>
+                </a>
+            </li>
+            <li>
+                <a href="morning.html" class="flex items-center gap-3 text-golden-dark dark:text-golden-light hover:bg-golden-light/10 dark:hover:bg-golden/10 p-3 rounded-lg transition-all duration-300">
+                    <i class="fas fa-sun w-6"></i>
+                    <span>أذكار الصباح</span>
+                </a>
+            </li>
+            <li>
+                <a href="evening.html" class="flex items-center gap-3 text-golden-dark dark:text-golden-light hover:bg-golden-light/10 dark:hover:bg-golden/10 p-3 rounded-lg transition-all duration-300">
+                    <i class="fas fa-moon w-6"></i>
+                    <span>أذكار المساء</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Settings Section -->
+    <div class="p-6">
+        <h4 class="text-lg font-bold text-golden-dark dark:text-golden-light mb-4">الإعدادات</h4>
+        
+        <!-- Prayer Calculation Method -->
+        <div class="mb-4">
+            <label class="block text-golden-dark dark:text-golden-light text-sm mb-2">طريقة حساب أوقات الصلاة</label>
+            <select id="calculation-method" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light p-2 rounded-lg">
+                <option value="4">أم القرى (مكة المكرمة)</option>
+                <option value="1">المجمع الفقهي الإسلامي</option>
+                <option value="2">الهيئة العامة للمساحة (الإمارات)</option>
+                <option value="3">المجلس الإسلامي العالمي (الجزائر)</option>
+                <option value="6">المجلس الأوروبي للإفتاء والبحوث</option>
+                <option value="5">الاتحاد الإسلامي المصري</option>
+            </select>
+        </div>
+
+        <!-- Language Selection -->
+        <div class="mb-4">
+            <label class="block text-golden-dark dark:text-golden-light text-sm mb-2">اللغة</label>
+            <select id="language-select" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light p-2 rounded-lg">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+                <option value="ur">اردو</option>
+            </select>
+        </div>
+
+        <!-- Notifications -->
+        <div class="mb-4">
+            <label class="block text-golden-dark dark:text-golden-light text-sm mb-2">التنبيهات</label>
+            <div class="space-y-2">
+                <label class="flex items-center gap-2 text-golden-dark dark:text-golden-light">
+                    <input type="checkbox" id="prayer-notifications" class="form-checkbox text-golden border-golden-light rounded">
+                    <span>تنبيهات الصلاة</span>
+                </label>
+                <label class="flex items-center gap-2 text-golden-dark dark:text-golden-light">
+                    <input type="checkbox" id="adhkar-notifications" class="form-checkbox text-golden border-golden-light rounded">
+                    <span>تنبيهات الأذكار</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Location Settings -->
+        <div class="mb-6">
+            <label class="block text-golden-dark dark:text-golden-light text-sm mb-2">الموقع</label>
+            <button id="update-location" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg hover:bg-golden-light/10 dark:hover:bg-golden/10 transition-all duration-300 flex items-center justify-center gap-2">
+                <i class="fas fa-location-dot"></i>
+                <span>تحديث الموقع</span>
+            </button>
+        </div>
+
+        <!-- Profile Actions -->
+        <div class="space-y-2">
+            <button id="add-profile" class="w-full bg-golden-light hover:bg-golden text-white dark:bg-golden dark:hover:bg-golden-dark px-4 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+                <i class="fas fa-user-plus"></i>
+                <span>إضافة ملف شخصي</span>
+            </button>
+            <button id="edit-profile" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg hover:bg-golden-light/10 dark:hover:bg-golden/10 transition-all duration-300 flex items-center justify-center gap-2">
+                <i class="fas fa-user-edit"></i>
+                <span>تعديل الملف الشخصي</span>
+            </button>
+            <div class="border-t border-golden/20 dark:border-golden-light/20 my-2"></div>
+            <button id="view-backups" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg hover:bg-golden-light/10 dark:hover:bg-golden/10 transition-all duration-300 flex items-center justify-center gap-2">
+                <i class="fas fa-history"></i>
+                <span>النسخ الاحتياطية</span>
+            </button>
+            <button id="export-profiles" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg hover:bg-golden-light/10 dark:hover:bg-golden/10 transition-all duration-300 flex items-center justify-center gap-2">
+                <i class="fas fa-file-export"></i>
+                <span>تصدير الملفات الشخصية</span>
+            </button>
+            <button id="import-profiles" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-4 py-2 rounded-lg hover:bg-golden-light/10 dark:hover:bg-golden/10 transition-all duration-300 flex items-center justify-center gap-2">
+                <i class="fas fa-file-import"></i>
+                <span>استيراد الملفات الشخصية</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Close Button -->
+    <button id="close-profile-sidebar" class="absolute top-4 right-4 text-golden-dark dark:text-golden-light hover:text-golden hover:scale-110 transition-all duration-300">
+        <i class="fas fa-times text-xl"></i>
+    </button>
+
+    <!-- Profile Switch Modal (Hidden by default) -->
+    <div id="profile-switch-modal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center">
+        <div class="bg-cream dark:bg-darkbg p-6 rounded-xl w-80 max-w-[90%]">
+            <h3 class="text-xl font-bold text-golden-dark dark:text-golden-light mb-4">اختر الملف الشخصي</h3>
+            <div id="profiles-list" class="space-y-2 max-h-60 overflow-y-auto mb-4">
+                <!-- Will be populated by JS -->
+            </div>
+            <div class="flex justify-end">
+                <button id="close-profile-modal" class="bg-golden-light hover:bg-golden text-white dark:bg-golden dark:hover:bg-golden-dark px-4 py-2 rounded-lg transition-all duration-300">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+</aside>
