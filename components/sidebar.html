@@ -1,4 +1,9 @@
-<aside id="profile-sidebar" class="fixed top-0 right-[-280px] w-[280px] h-full bg-cream/95 dark:bg-darkbg/95 border-l-2 border-golden-light dark:border-golden shadow-xl z-50 transition-all duration-300 overflow-y-auto">
+<aside id="profile-sidebar" class="fixed top-0 left-[-280px] w-[280px] h-full bg-cream/95 dark:bg-darkbg/95 border-r-2 border-golden-light dark:border-golden shadow-xl z-[1001] transition-all duration-300 overflow-y-auto" dir="rtl" role="dialog" aria-label="القائمة الجانبية">
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 z-[1000] bg-black/50 opacity-0 pointer-events-none transition-all duration-300" aria-hidden="true">
+        <div class="absolute inset-0 backdrop-blur-sm"></div>
+    </div>
+
     <!-- User Profile Section -->
     <div class="p-6 border-b border-golden/20 dark:border-golden-light/20">
         <div class="flex items-center gap-3 mb-4">
@@ -127,8 +132,7 @@
         </div>
     </div>
 
-    <!-- Close Button -->
-    <button id="close-profile-sidebar" class="absolute top-4 right-4 text-golden-dark dark:text-golden-light hover:text-golden hover:scale-110 transition-all duration-300">
+    <!-- Close Button -->    <button id="close-profile-sidebar" class="absolute top-4 left-4 text-golden-dark dark:text-golden-light hover:text-golden hover:scale-110 transition-all duration-300">
         <i class="fas fa-times text-xl"></i>
     </button>
 

@@ -37,14 +37,12 @@
     // Store the preference
     localStorage.setItem('darkMode', on ? 'true' : 'false');
   }
-  
-  if (darkToggleBtn) {
+    if (darkToggleBtn) {
     darkToggleBtn.onclick = function() {
       setDarkMode(!darkOn);
       // Hide the profile sidebar if open
-      if (sidebar && sidebarOpen) {
-        sidebar.style.left = '-260px';
-        sidebarOpen = false;
+      if (SidebarManager.isOpen) {
+        SidebarManager.toggleSidebar(false);
       }
     };
   }
@@ -95,9 +93,17 @@
     // Handle device orientation event to rotate Qibla arrow
     function handleOrientation(e) {
       if (qiblaBearing === null) return;
-      const heading = e.webkitCompassHeading ?? ((typeof e.alpha === 'number') ? Math.abs(e.alpha - 360) : 0);
+      let heading;
+      if (typeof e.webkitCompassHeading !== 'undefined') {
+        heading = e.webkitCompassHeading;
+      } else if (typeof e.alpha === 'number') {
+        // Most browsers: alpha is 0 when facing north, increases clockwise
+        heading = 360 - e.alpha;
+        if (heading < 0) heading += 360;
+      } else {
+        heading = 0;
+      }
       const rotation = qiblaBearing - heading;
-      // Rotate the arrow element (pivot at base center)
       qiblaArrow.style.transform = `rotate(${rotation}deg)`;
     }
 
@@ -127,37 +133,38 @@
 
     // Fetch prayer times via Aladhan API
     function fetchPrayerTimes(lat, lon) {
-      const apiUrl = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`;
+      // Use HTTPS and allow method selection
+      const method = localStorage.getItem('currentPrayerMethod') || '4';
+      const apiUrl = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=${method}&school=1`;
       fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
-          if (!data || !data.data || !data.data.timings) return;
+          if (!data || !data.data || !data.data.timings) {
+            throw new Error('Invalid prayer times data');
+          }
           const timings = data.data.timings;
           const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
           const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-          
           // Clear the list
           prayerList.innerHTML = '';
-          
-          // Get next prayer time
-          const next = getNextPrayerTime(timings);
-          
+          // Get current and next prayer
+          const { current, next } = getCurrentAndNextPrayerTime(timings);
           // Create and append prayer time cards
           order.forEach(key => {
             if (timings[key]) {
               const time = timings[key];
               const nameAr = prayerNames[key];
-              const isNext = next && next.name === key;
-              const card = createPrayerTimeCard(nameAr, time, isNext);
+              const isCurrent = current && current.name === key;
+              const card = createPrayerTimeCard(nameAr, time, isCurrent);
               prayerList.appendChild(card);
             }
           });
         })
         .catch(err => {
-          console.error('Prayer times fetch error:', err);
+          console.error('Prayer times error:', err);
           prayerList.innerHTML = `
             <li class="p-3 rounded-lg bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 text-center">
-              تعذّر جلب مواقيت الصلاة
+              تعذر جلب مواقيت الصلاة. الرجاء المحاولة لاحقًا
             </li>
           `;
         });
@@ -268,6 +275,43 @@
       window._prayerCountdownInterval = setInterval(tick, 1000);
     }
 
+    // --- Insert new function to get current and next prayer ---
+    function getCurrentAndNextPrayerTime(timings) {
+      const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+      const now = new Date();
+      let current = null;
+      let next = null;
+      let prevPrayerTime = null;
+      let prevPrayerName = null;
+      for (let i = 0; i < order.length; i++) {
+        const key = order[i];
+        if (timings[key]) {
+          const [h, m] = timings[key].split(":");
+          const prayerDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+          if (now >= prayerDate) {
+            current = { name: key, time: prayerDate };
+          } else if (!next) {
+            next = { name: key, time: prayerDate };
+            break;
+          }
+          prevPrayerTime = prayerDate;
+          prevPrayerName = key;
+        }
+      }
+      // If after Isha, current is Isha and next is Fajr of next day
+      if (!next && current) {
+        const [h, m] = timings['Fajr'].split(":");
+        const fajrNextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m);
+        next = { name: 'Fajr', time: fajrNextDay };
+      }
+      // If before Fajr, current is Isha of previous day (optional: can be null)
+      if (!current && next) {
+        // Before Fajr
+        current = { name: 'Isha', time: null };
+      }
+      return { current, next };
+    }
+
     // --- Patch prayer times logic to add countdown ---
     const origFetchPrayerTimes = window.fetch;
     window.fetch = function(...args) {
@@ -276,7 +320,7 @@
         if (args[0] && args[0].toString().includes('aladhan.com/v1/timings')) {
           res.clone().json().then(data => {
             if (data && data.data && data.data.timings) {
-              const next = getNextPrayerTime(data.data.timings);
+              const { next } = getCurrentAndNextPrayerTime(data.data.timings);
               if (next) updateCountdown(next.name, next.time);
             }
           });
@@ -357,56 +401,197 @@
     };
     return emojiMap[name] || '🕌';
   }
+  // Sidebar Management
+  const SidebarManager = {
+    MOVE_THRESHOLD: 15,      // Pixels to consider as movement
+    TAP_TIME_THRESHOLD: 250, // Max ms for a tap
+    TOUCH_DEBOUNCE: 400,     // Ms between touches
+    SWIPE_THRESHOLD: 50,     // Pixels for swipe
 
-  // Sidebar loader and logic
-  async function loadSidebar() {
-    try {
-      const resp = await fetch('components/sidebar.html');
-      const html = await resp.text();
-      const placeholder = document.getElementById('profile-sidebar-container');
-      if (placeholder) {
+    init: async function() {
+      try {
+        const resp = await fetch('components/sidebar.html');
+        const html = await resp.text();
+        const placeholder = document.getElementById('profile-sidebar-container');
+        if (!placeholder) return;
+
         placeholder.insertAdjacentHTML('beforebegin', html);
-        // Sidebar logic after loading
-        const profileBtn = document.getElementById('profile-slider-btn');
-        var athkarSidebar = document.getElementById('profile-sidebar');
-        var athkarSidebarOpen = false;
-        const closeBtn = document.getElementById('close-profile-sidebar');
-        
-        profileBtn.addEventListener('click', e => {
-          athkarSidebar.style.right = '0';
-          athkarSidebarOpen = true;
-          e.stopPropagation();
-        });
-        
-        closeBtn.addEventListener('click', e => {
-          athkarSidebar.style.right = '-280px';
-          athkarSidebarOpen = false;
-          e.stopPropagation();
-        });
-        
-        document.addEventListener('click', e => {
-          if (athkarSidebarOpen && !athkarSidebar.contains(e.target) && e.target !== profileBtn) {
-            athkarSidebar.style.right = '-280px';
-            athkarSidebarOpen = false;
-          }
-        });
-        
-        athkarSidebar.addEventListener('click', e => e.stopPropagation());
-        
+        this.setupSidebar();
+
         // Settings link (placeholder)
         const settingsLink = document.getElementById('sidebar-settings-link');
         if (settingsLink) {
-          settingsLink.addEventListener('click', function(e) {
+          settingsLink.addEventListener('click', e => {
             e.preventDefault();
             alert('صفحة الإعدادات ستتوفر قريبًا.');
           });
         }
+      } catch (error) {
+        console.error('Failed to load sidebar:', error);
+        this.handleError('فشل في تحميل القائمة الجانبية');
       }
-    } catch (error) {
-      console.error('Failed to load sidebar:', error);
+    },
+
+    setupSidebar: function() {
+      this.sidebar = document.getElementById('profile-sidebar');
+      this.profileBtn = document.getElementById('profile-slider-btn');
+      this.closeBtn = document.getElementById('close-profile-sidebar');
+      this.isOpen = false;
+      this.lastTouchTime = 0;
+      this.touchStartX = 0;
+      this.touchStartY = 0;
+      this.touchStartTime = 0;
+      this.isTouchMoved = false;
+
+      if (!this.sidebar || !this.profileBtn || !this.closeBtn) return;
+
+      this.setupEventListeners();
+      this.setupAccessibility();
+    },
+
+    setupEventListeners: function() {
+      // Touch handling for mobile
+      this.profileBtn.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+      this.profileBtn.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+      this.profileBtn.addEventListener('touchend', this.handleTouchEnd.bind(this));
+
+      // Click handling for desktop
+      this.profileBtn.addEventListener('click', (e) => {
+        if (!('ontouchstart' in window)) {
+          this.toggleSidebar(!this.isOpen);
+          e.stopPropagation();
+        }
+      });
+
+      // Close button handler
+      this.closeBtn.addEventListener('click', (e) => {
+        this.toggleSidebar(false);
+        e.stopPropagation();
+      });      // Outside click handler
+      document.addEventListener('click', (e) => {
+        if (this.isOpen && !this.sidebar.contains(e.target) && e.target !== this.profileBtn) {
+          this.toggleSidebar(false);
+        }
+      });
+
+      // Overlay click handler
+      document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
+        if (this.isOpen) {
+          this.toggleSidebar(false);
+        }
+      });
+
+      // Stop propagation inside sidebar
+      this.sidebar.addEventListener('click', e => e.stopPropagation());
+
+      // Swipe to close
+      this.sidebar.addEventListener('touchstart', (e) => {
+        this.touchStartX = e.touches[0].clientX;
+      }, { passive: true });      this.sidebar.addEventListener('touchmove', (e) => {
+        if (!this.isOpen) return;
+        const touchX = e.touches[0].clientX;
+        const deltaX = touchX - this.touchStartX; // LTR: swipe left to close
+        if (deltaX < -this.SWIPE_THRESHOLD) {
+          this.toggleSidebar(false);
+        }
+      }, { passive: true });
+
+      // Escape key handler
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isOpen) {
+          this.toggleSidebar(false);
+        }
+      });
+    },
+
+    setupAccessibility: function() {
+      this.sidebar.setAttribute('role', 'navigation');
+      this.sidebar.setAttribute('aria-label', 'قائمة جانبية');
+      this.profileBtn.setAttribute('aria-expanded', 'false');
+      this.profileBtn.setAttribute('aria-controls', 'profile-sidebar');
+      this.closeBtn.setAttribute('aria-label', 'إغلاق القائمة');
+    },
+
+    handleTouchStart: function(e) {
+      if (e.touches.length !== 1) return; // Prevent multi-touch
+      e.preventDefault();
+      
+      const touch = e.touches[0];
+      this.touchStartX = touch.clientX;
+      this.touchStartY = touch.clientY;
+      this.touchStartTime = Date.now();
+      this.isTouchMoved = false;
+    },
+
+    handleTouchMove: function(e) {
+      if (e.touches.length !== 1) return;
+      
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - this.touchStartX);
+      const deltaY = Math.abs(touch.clientY - this.touchStartY);
+
+      // Only mark as moved if primarily horizontal movement
+      if (deltaX > this.MOVE_THRESHOLD && deltaX > deltaY) {
+        this.isTouchMoved = true;
+      }
+    },
+
+    handleTouchEnd: function(e) {
+      e.preventDefault();
+      const touchDuration = Date.now() - this.touchStartTime;
+      const now = Date.now();
+
+      // Debounce rapid touches
+      if (now - this.lastTouchTime < this.TOUCH_DEBOUNCE) return;
+      this.lastTouchTime = now;
+
+      // Only toggle on quick tap without movement
+      if (!this.isTouchMoved && touchDuration < this.TAP_TIME_THRESHOLD) {
+        this.toggleSidebar(!this.isOpen);
+      }
+    },    toggleSidebar: function(open) {
+        if (open === this.isOpen) return;
+        
+        const overlay = document.getElementById('sidebar-overlay');
+        const scrollY = window.scrollY;
+        
+        this.isOpen = open;
+        
+        if (open) {
+            // Store the scrollbar width before hiding overflow
+            document.documentElement.style.setProperty('--scrollbar-width', getScrollbarWidth() + 'px');
+            document.body.classList.add('sidebar-open');
+            this.sidebar.style.left = '0';
+            if (overlay) overlay.classList.add('active');
+        } else {
+            document.body.classList.remove('sidebar-open');
+            this.sidebar.style.left = '-280px';
+            if (overlay) overlay.classList.remove('active');
+            // Reset scrollbar width variable
+            document.documentElement.style.setProperty('--scrollbar-width', '0px');
+            // Restore scroll position after a brief delay
+            setTimeout(() => window.scrollTo(0, scrollY), 50);
+        }
+        
+        this.sidebar.setAttribute('aria-hidden', (!open).toString());
+        this.profileBtn.setAttribute('aria-expanded', open.toString());
+        this.sidebar.classList.toggle('closing', !open);
+    },
+
+    handleError: function(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-state text-center p-4 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-200 rounded-lg';
+      errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle mb-2"></i>
+        <p>${message}</p>
+      `;
+      if (this.sidebar) {
+        this.sidebar.appendChild(errorDiv);
+      }
     }
-  }
-  loadSidebar();
+  };
+  // Initialize sidebar
+  SidebarManager.init();
 
   // Ripple effect for buttons
   function createRipple(event) {
@@ -440,5 +625,40 @@
         navigator.vibrate(10);
       });
     }
+  }
+
+  // Hijri Date Display
+  function updateHijriDate() {
+    const today = new Date();
+    const hijri = new Intl.DateTimeFormat('ar-TN-u-ca-islamic', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(today);
+    var el = document.getElementById('hijri-date-display');
+    if (el) el.textContent = hijri;
+  }
+  updateHijriDate();
+  setInterval(updateHijriDate, 86400000); // Update daily
+
+  /*** Scrollbar Width Calculation ***/
+  function getScrollbarWidth() {
+    // Create a temporary div with scrollbar
+    const outer = document.createElement('div');
+    outer.style.visibility = 'hidden';
+    outer.style.overflow = 'scroll';
+    document.body.appendChild(outer);
+
+    // Create an inner div
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+
+    // Calculate scrollbar width
+    const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+
+    // Clean up
+    outer.parentNode.removeChild(outer);
+
+    return scrollbarWidth;
   }
 })();

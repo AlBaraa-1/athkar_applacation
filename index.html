@@ -215,11 +215,12 @@
             </div>
         </section>
 
+        <!-- Tasbeeh Counter Header -->
+        <h2 class="text-xl md:text-2xl font-bold mb-4 text-golden dark:text-golden-light border-b-2 border-golden pb-2 inline-block">
+            عداد التسبيح
+        </h2>
         <!-- Tasbeeh Counter Section -->
         <section class="bg-cream/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 mb-8 transition-all duration-300">
-            <h2 class="text-xl md:text-2xl font-bold mb-4 text-golden dark:text-golden-light border-b-2 border-golden pb-2 inline-block font-tajawal">
-                عداد التسبيح
-            </h2>
             <div class="space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-center gap-4 md:gap-6">
                     <div class="flex flex-col items-center gap-2 w-full md:w-1/2">
@@ -319,7 +320,9 @@
                 <div class="mb-4 md:mb-0 text-center md:text-right">
                     <h3 class="text-xl font-bold mb-1">تطبيق الأذكار</h3>
                     <p class="text-golden dark:text-golden-light/80 text-sm">تطبيق متكامل للأذكار وأوقات الصلاة</p>
-                    <div id="hijri-date" class="text-sm mt-1 text-golden-dark/70 dark:text-golden-light/70"></div>
+                    <div class="hijri-date text-sm mt-1">
+                      التاريخ الهجري: <span id="hijri-date-display">--/--/----</span>
+                    </div>
                 </div>
                 <div class="flex gap-4 mb-4 md:mb-0">
                     <a href="#" aria-label="Facebook" class="text-golden hover:text-golden-dark dark:text-golden-light dark:hover:text-golden transition-colors">
@@ -390,6 +393,7 @@
             }).format(today);
             
             document.getElementById('hijri-date').textContent = hijri;
+            document.getElementById('hijri-date-display').textContent = hijri;
         }
         
         document.addEventListener('DOMContentLoaded', updateHijriDate);

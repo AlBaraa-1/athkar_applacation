@@ -87,14 +87,14 @@ function renderDynamicAdhkar() {
     <div class="adhkar-item animate-fade-slide-in">${adhkar[currentAdhkar]}</div>
     <div class="flex items-center justify-center gap-4 mt-6">
       <button id="adhkar-prev-btn" class="bg-golden-light hover:bg-golden text-white dark:bg-golden dark:hover:bg-golden-dark px-6 py-2 rounded-lg transition-all duration-300" ${currentAdhkar === 0 ? 'disabled' : ''}>
-        ← السابق
+        → السابق
       </button>
       <div class="w-40 h-2 bg-golden/20 dark:bg-golden-light/20 rounded-full overflow-hidden relative">
         <div id="adhkar-progress-fill" class="h-2 bg-golden dark:bg-golden-light absolute left-0 top-0 transition-all duration-300" style="width:${((currentAdhkar+1)/adhkar.length)*100}%"></div>
       </div>
       <span id="adhkar-progress-text" class="text-golden-dark dark:text-golden-light">${currentAdhkar+1} / ${adhkar.length}</span>
       <button id="adhkar-next-btn" class="bg-golden-light hover:bg-golden text-white dark:bg-golden dark:hover:bg-golden-dark px-6 py-2 rounded-lg transition-all duration-300" ${currentAdhkar === adhkar.length-1 ? 'disabled' : ''}>
-        التالي →
+        التالي ←
       </button>
     </div>
   `;
