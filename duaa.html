@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>أدعية مختارة - تطبيق الأذكار</title>
+    <link rel="preload" href="css/styles.css" as="style">
+    <link rel="preconnect" href="https://api.aladhan.com">
+    <script src="js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/duaa.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="js/i18n.js"></script>
+</head>
+<body class="min-h-screen bg-cream dark:bg-darkbg transition-all duration-300">
+    <!-- Header -->
+    <div id="header-container"></div>
+    <!-- Sidebar -->
+    <div id="profile-sidebar-container"></div>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="label-section text-center mb-12 tracking-wide font-extrabold text-3xl md:text-4xl text-golden-dark dark:text-golden-light drop-shadow-lg" data-i18n="duaa">أدعية مختارة</h2>
+        <section class="bg-white/95 dark:bg-darkbg/95 rounded-3xl border-2 border-golden-light dark:border-golden shadow-2xl p-6 md:p-12 transition-all duration-300 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="fade-in">
+                    <h3 class="text-2xl font-bold text-golden mb-6 flex items-center gap-3"><span class="duaa-section-icon"><i class="fas fa-praying-hands"></i></span> أدعية الاستفتاح</h3>
+                    <ul class="duaa-list space-y-5 text-xl leading-loose">
+                        <li>اللهم باعد بيني وبين خطاياي كما باعدت بين المشرق والمغرب.</li>
+                        <li>اللهم نقني من الخطايا كما ينقى الثوب الأبيض من الدنس.</li>
+                        <li>اللهم اغسل خطاياي بالماء والثلج والبرد.</li>
+                    </ul>
+                </div>
+                <div class="fade-in">
+                    <h3 class="text-2xl font-bold text-golden mb-6 flex items-center gap-3"><span class="duaa-section-icon"><i class="fas fa-coins"></i></span> أدعية الرزق</h3>
+                    <ul class="duaa-list space-y-5 text-xl leading-loose">
+                        <li>اللهم اكفني بحلالك عن حرامك وأغنني بفضلك عمن سواك.</li>
+                        <li>اللهم ارزقني رزقًا حلالًا طيبًا واسعًا مباركًا فيه.</li>
+                        <li>اللهم إني أسألك من الخير كله عاجله وآجله.</li>
+                    </ul>
+                </div>
+                <div class="fade-in">
+                    <h3 class="text-2xl font-bold text-golden mb-6 flex items-center gap-3"><span class="duaa-section-icon"><i class="fas fa-heartbeat"></i></span> أدعية الشفاء</h3>
+                    <ul class="duaa-list space-y-5 text-xl leading-loose">
+                        <li>اللهم رب الناس أذهب البأس، اشفِ أنت الشافي، لا شفاء إلا شفاؤك، شفاءً لا يغادر سقمًا.</li>
+                        <li>اللهم إني أسألك العفو والعافية في الدنيا والآخرة.</li>
+                    </ul>
+                </div>
+                <div class="fade-in">
+                    <h3 class="text-2xl font-bold text-golden mb-6 flex items-center gap-3"><span class="duaa-section-icon"><i class="fas fa-cloud-sun"></i></span> أدعية الكرب والهم</h3>
+                    <ul class="duaa-list space-y-5 text-xl leading-loose">
+                        <li>اللهم إني أعوذ بك من الهم والحزن، وأعوذ بك من العجز والكسل، وأعوذ بك من الجبن والبخل، وأعوذ بك من غلبة الدين وقهر الرجال.</li>
+                        <li>لا إله إلا أنت سبحانك إني كنت من الظالمين.</li>
+                    </ul>
+                </div>
+                <div class="md:col-span-2 fade-in">
+                    <h3 class="text-2xl font-bold text-golden mb-6 flex items-center gap-3"><span class="duaa-section-icon"><i class="fas fa-star"></i></span> أدعية متنوعة</h3>
+                    <ul class="duaa-list space-y-5 text-xl leading-loose">
+                        <li>اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي.</li>
+                        <li>اللهم استر عوراتي وآمن روعاتي.</li>
+                        <li>اللهم إني أعوذ بك من زوال نعمتك وتحول عافيتك وفجاءة نقمتك وجميع سخطك.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-14 text-center">
+                <span class="inline-block bg-golden-light/30 dark:bg-golden-dark/40 text-golden-dark dark:text-golden-light rounded-2xl px-8 py-4 text-lg md:text-xl shadow font-semibold tracking-wide">جميع الأدعية من السنة النبوية الصحيحة</span>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <div id="footer-container"></div>
+    <script>
+    // Load header and footer dynamically
+    fetch('components/header.html').then(r=>r.text()).then(t=>document.getElementById('header-container').innerHTML=t);
+    fetch('components/footer.html').then(r=>r.text()).then(t=>document.getElementById('footer-container').innerHTML=t);
+    // Sidebar (if needed)
+    fetch('components/sidebar.html').then(r=>r.text()).then(t=>document.getElementById('profile-sidebar-container').innerHTML=t);
+    </script>
+    <script>
+    // Fix for darkmode toggle after dynamic header load
+    function setupDarkModeToggle() {
+      const darkToggleBtn = document.getElementById('darkmode-toggle');
+      const darkKnob = document.getElementById('darkmode-knob');
+      const sunEmoji = document.getElementById('darkmode-emoji-sun');
+      const moonEmoji = document.getElementById('darkmode-emoji-moon');
+      let darkOn = document.body.classList.contains('darkmode');
+
+      function setDarkMode(on) {
+        document.documentElement.classList.toggle('dark', on);
+        document.body.classList.toggle('darkmode', on);
+        if (darkKnob) darkKnob.style.left = on ? '25px' : '3px';
+        if (sunEmoji && moonEmoji) {
+          if (on) {
+            sunEmoji.style.opacity = '0';  sunEmoji.style.zIndex = '1';
+            moonEmoji.style.opacity = '1'; moonEmoji.style.zIndex = '3';
+          } else {
+            sunEmoji.style.opacity = '1';  sunEmoji.style.zIndex = '3';
+            moonEmoji.style.opacity = '0'; moonEmoji.style.zIndex = '1';
+          }
+        }
+        if (darkToggleBtn) darkToggleBtn.style.background = on ? '#7c5c1e' : '#e0c97f';
+        darkOn = on;
+        localStorage.setItem('darkMode', on ? 'true' : 'false');
+      }
+
+      if (darkToggleBtn) {
+        darkToggleBtn.onclick = function() {
+          setDarkMode(!darkOn);
+          if (window.SidebarManager && SidebarManager.isOpen) {
+            SidebarManager.toggleSidebar(false);
+          }
+        };
+      }
+
+      // Initialize from saved preference or system
+      const savedDarkMode = localStorage.getItem('darkMode');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(savedDarkMode ? savedDarkMode === 'true' : prefersDark);
+
+      // Listen for system changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (localStorage.getItem('darkMode') === null) setDarkMode(e.matches);
+      });
+    }
+
+    // Re-setup darkmode toggle after header loads
+    fetch('components/header.html').then(r=>r.text()).then(t=>{
+      document.getElementById('header-container').innerHTML=t;
+      setupDarkModeToggle();
+    });
+    fetch('components/footer.html').then(r=>r.text()).then(t=>document.getElementById('footer-container').innerHTML=t);
+    fetch('components/sidebar.html').then(r=>r.text()).then(t=>document.getElementById('profile-sidebar-container').innerHTML=t);
+    </script>
+    <script src="js/common.js"></script>
+    <style>
+    .fade-in {
+      animation: fadeInUp 1.2s cubic-bezier(.39,.575,.565,1.000) both;
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: none; }
+    }
+    </style>
+    <!-- Scripts -->
+    <script src="js/profiles.js"></script>
+    <script src="js/tasbeeh-inline.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/adhkar-dynamic.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/statistics.js"></script>
+    <script src="js/sidebar-ui.js"></script>
+    <script src="js/i18n.js"></script>
+
+</body>
+</html>

@@ -9,36 +9,16 @@
     <link rel="preload" href="css/styles.css" as="style">
     <link rel="preconnect" href="https://api.aladhan.com">
 
+    <script src="js/tailwind-config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        golden: {
-                            light: '#e0c97f',
-                            DEFAULT: '#a67c2e',
-                            dark: '#7c5c1e'
-                        },
-                        cream: '#fffbe6',
-                        darkbg: '#23201a'
-                    },
-                    fontFamily: {
-                        'tajawal': ['Tajawal', 'sans-serif'],
-                        'amiri': ['Amiri', 'serif']
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Amiri:wght@400;700&display=swap');
         /* Only font import and essential resets remain. All inline styles moved to custom.css */
     </style>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/hijri-calendar.css">
     <link rel="manifest" href="manifest.json">
 
     <!-- Firebase SDKs -->
@@ -93,6 +73,7 @@
                             <li class="skeleton-loading h-16 rounded-lg"></li>
                             <li class="skeleton-loading h-16 rounded-lg"></li>
                             <li class="skeleton-loading h-16 rounded-lg"></li>
+                            <li class="skeleton-loading h-16 rounded-lg"></li> <!-- Sunrise placeholder -->
                         </ul>
                     </div>
                 </div>
@@ -117,194 +98,38 @@
                         </button>
                     </div>
                 </div>
-            </div>
         </section>
 
-        <!-- Tasbeeh Counter Header -->
-        <h2 class="label-section">
-            عداد التسبيح
-        </h2>
-        <!-- Tasbeeh Counter Section -->
-        <section class="bg-cream/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 mb-8 transition-all duration-300">
-            <div class="space-y-6">
-                <!-- Counter/progress ring at the top -->
-                <div class="flex flex-col items-center gap-4">
-                    <div class="relative flex flex-col items-center justify-center mb-2">
-                        <svg class="progress-ring drop-shadow-lg" width="180" height="180">
-                            <circle
-                                class="progress-ring__bg"
-                                stroke="#e0c97f33"
-                                stroke-width="16"
-                                fill="#fffbe6"
-                                r="75"
-                                cx="90"
-                                cy="90"
-                            />
-                            <circle
-                                class="progress-ring__circle"
-                                stroke="#a67c2e"
-                                stroke-width="16"
-                                fill="transparent"
-                                r="75"
-                                cx="90"
-                                cy="90"
-                                style="stroke-dasharray:471.238, 471.238; stroke-dashoffset:471.238; transition: stroke-dashoffset 0.3s; filter: drop-shadow(0 2px 8px #e0c97f55);"
-                            />
-                        </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center select-none cursor-pointer" id="progress-circle-click">
-                            <div id="counter-display" class="text-5xl md:text-6xl font-bold text-golden dark:text-golden-light transition-all duration-300">0</div>
-                            <div id="progress-percentage" class="text-golden-dark dark:text-golden-light text-lg mt-1"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Dhikr type and custom input -->
-                <div class="flex flex-col items-center gap-2 w-full md:w-2/3 mx-auto">
-                    <label for="tasbeeh-type-select" class="text-golden-dark dark:text-golden-light">نوع الذكر:</label>
-                    <select id="tasbeeh-type-select" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden rounded-lg px-4 py-2 text-golden-dark dark:text-golden-light focus:outline-none focus:ring-2 focus:ring-golden transition-all duration-300">
-                        <option value="سبحان الله">سبحان الله</option>
-                        <option value="الحمد لله">الحمد لله</option>
-                        <option value="الله أكبر">الله أكبر</option>
-                        <option value="لا إله إلا الله">لا إله إلا الله</option>
-                        <option value="لا حول ولا قوة إلا بالله">لا حول ولا قوة إلا بالله</option>
-                        <option value="أستغفر الله">أستغفر الله</option>
-                        <option value="سبحان الله وبحمده">سبحان الله وبحمده</option>
-                        <option value="سبحان الله العظيم">سبحان الله العظيم</option>
-                        <option value="اللهم صل وسلم على نبينا محمد">اللهم صل وسلم على نبينا محمد</option>
-                        <option value="اللهم اغفر لي">اللهم اغفر لي</option>
-                        <option value="إضافة ذكر مخصص...">إضافة ذكر مخصص...</option>
-                    </select>
-                    <div id="custom-dhikr-container" class="custom-dhikr-container">
-                        <label for="custom-dhikr" class="custom-dhikr-label">أدخل الذكر المخصص:</label>
-                        <div id="custom-dhikr-input-row" class="custom-dhikr-input-row">
-                            <input type="text" id="custom-dhikr" class="custom-dhikr-input" placeholder="اكتب الذكر هنا...">
-                            <button id="add-custom-dhikr-btn" class="btn-main custom-dhikr-add-btn" title="إضافة">
-                                إضافة
-                            </button>
-                            <div id="custom-dhikr-list" class="custom-dhikr-list"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Target count and custom input -->
-                <div class="flex flex-col items-center gap-2 w-full md:w-2/3 mx-auto">
-                    <label for="target-select" class="text-golden-dark dark:text-golden-light">العدد المطلوب:</label>
-                    <select id="target-select" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden rounded-lg px-4 py-2 text-golden-dark dark:text-golden-light focus:outline-none focus:ring-2 focus:ring-golden transition-all duration-300">
-                        <option value="33">33</option>
-                        <option value="100">100</option>
-                        <option value="500">500</option>
-                        <option value="1000">1000</option>
-                        <option value="custom">مخصص</option>
-                        <option value="unlimited">غير محدود</option>
-                    </select>
-                    <div id="custom-target-container" class="custom-target-container">
-                        <label for="custom-target" class="custom-target-label">أدخل العدد المطلوب:</label>
-                        <input type="number" id="custom-target" min="1" class="custom-target-input">
-                    </div>
-                </div>
-                <!-- Reset button at the bottom -->
-                <div class="flex justify-center">
-                    <button id="reset-btn" class="bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-6 py-2 md:px-8 md:py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-lg">
-                        إعادة
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Morning & Evening Adhkar Section -->
-        <h2 id="adhkar-dynamic-title" class="label-section">
-            أذكار الصباح والمساء
-        </h2>
-        <section class="bg-cream/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 mb-8 transition-all duration-300">
-            <div class="flex justify-between items-center mb-4">
-                <button id="adhkar-audio-toggle" class="btn-main p-2 rounded-full">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-            </div>
-            <div id="adhkar-dynamic-list" class="space-y-4 text-golden-dark dark:text-golden-light">
-                <!-- Dynamic adhkar will be populated by script -->
-                <div class="skeleton-loading h-24 rounded-lg"></div>
-            </div>
-        </section>
-
-        <!-- After Prayer Adhkar Section -->
-        <h2 class="label-section">
-            أذكار بعد الصلاة
-        </h2>
+        <!-- Quick Athkar Access Section -->
+        <h2 class="label-section" data-i18n="quick_adhkar">أذكار سريعة</h2>
         <section class="bg-cream/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 transition-all duration-300">
-            <div id="after-prayer-list" class="space-y-4 text-golden-dark dark:text-golden-light">
-                <div class="adhkar-item">
-                    <span>أستغفر الله</span> <span class="text-xs text-golden/70">(٣ مرات)</span>
-                </div>
-                <div class="adhkar-item">
-                    <span>اللهم أنت السلام ومنك السلام تباركت يا ذا الجلال والإكرام</span> <span class="text-xs text-golden/70">(مرة واحدة)</span>
-                </div>
-                <div class="adhkar-item">
-                    <span>لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. اللهم لا مانع لما أعطيت ولا معطي لما منعت ولا ينفع ذا الجد منك الجد</span> <span class="text-xs text-golden/70">(مرة واحدة)</span>
-                </div>
-                <div class="adhkar-item">
-                    <span>سبحان الله</span> <span class="text-xs text-golden/70">(٣٣ مرة)</span>
-                </div>
-                <div class="adhkar-item">
-                    <span>الحمد لله</span> <span class="text-xs text-golden/70">(٣٣ مرة)</span>
-                </div>
-                <div class="adhkar-item">
-                    <span>الله أكبر</span> <span class="text-xs text-golden/70">(٣٣ مرة)</span>
-                </div>
-                <div class="adhkar-item">
-                    <span>لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير</span> <span class="text-xs text-golden/70">(تمام المئة)</span>
-                </div>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <a href="morning.html#morning-adhkar" class="btn-main px-6 py-3 flex items-center gap-2">
+                    <i class="fas fa-sun"></i>
+                    <span data-i18n="morning_evening_adhkar">أذكار الصباح والمساء</span>
+                </a>
+                <a href="index.html#after-prayer-list" class="btn-main px-6 py-3 flex items-center gap-2">
+                    <i class="fas fa-pray"></i>
+                    <span data-i18n="after_prayer">بعد الصلاة</span>
+                </a>
+                <a href="tasbeeh.html" class="btn-main px-6 py-3 flex items-center gap-2">
+                    <i class="fas fa-prayer-beads"></i>
+                    <span data-i18n="tasbeeh_counter">عداد التسبيح</span>
+                </a>
+                <a href="duaa.html" class="btn-main px-6 py-3 flex items-center gap-2">
+                    <i class="fas fa-hands"></i>
+                    <span data-i18n="duaa">أدعية مختارة</span>
+                </a>
             </div>
         </section>
 
-        <!-- Statistics/Analytics Section -->
-        <h2 class="label-section">
-            الإحصائيات
-        </h2>
-        <!-- Updated Statistics Section -->
-        <section id="statistics-section" class="bg-white/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 mb-8 transition-all duration-300">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Total Tasbeeh Card -->
-            <div class="stats-card">
-              <div class="stats-icon"><i class="fas fa-praying-hands"></i></div>
-              <div class="stats-value" id="stat-total-tasbeeh">0</div>
-              <div class="stats-label">إجمالي التسبيح</div>
-              <div class="stats-trend" id="tasbeeh-trend">
-                <i class="fas fa-arrow-up text-green-500"></i>
-                <span>12% زيادة</span>
-              </div>
+        <!-- Hijri Calendar Section -->
+        <h2 class="label-section mt-10" data-i18n="hijri_calendar">التقويم الهجري</h2>
+        <section class="bg-cream/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 transition-all duration-300 mb-8">
+            <div id="hijri-calendar-container" class="flex flex-col items-center justify-center min-h-[220px]">
+                <!-- Hijri calendar will be rendered here -->
+                <div class="skeleton-loading h-24 w-3/4 rounded-lg"></div>
             </div>
-            
-            <!-- Favorites Card -->
-            <div class="stats-card">
-              <div class="stats-icon"><i class="fas fa-star"></i></div>
-              <div class="stats-value" id="stat-favorites">0</div>
-              <div class="stats-label">الأذكار المفضلة</div>
-            </div>
-            
-            <!-- Prayer Consistency Card -->
-            <div class="stats-card">
-              <div class="stats-icon"><i class="fas fa-calendar-check"></i></div>
-              <div class="stats-value" id="stat-prayer-consistency">0%</div>
-              <div class="stats-label">انتظام الصلاة</div>
-              <div class="progress-bar mt-2">
-                <div class="progress-fill" id="prayer-progress"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Tasbeeh Distribution Chart -->
-          <div class="mt-8">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-bold text-golden-dark dark:text-golden-light">توزيع التسبيح</h3>
-              <select id="chart-period" class="chart-period-select">
-                <option value="week">الأسبوع</option>
-                <option value="month">الشهر</option>
-                <option value="year">السنة</option>
-              </select>
-            </div>
-            <div class="chart-container">
-              <canvas id="tasbeeh-chart" height="300"></canvas>
-            </div>
-          </div>
         </section>
     </main>
 
@@ -368,5 +193,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/statistics.js"></script>
     <script src="js/sidebar-ui.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/hijri-calendar.js"></script>
+    
 </body>
 </html>

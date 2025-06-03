@@ -85,16 +85,23 @@
      * Calculate Qibla direction (bearing from current location to Kaaba).
      */
     function calculateQiblaDirection(lat, lon) {
+      if (typeof lat !== 'number' || typeof lon !== 'number') {
+        console.error('Invalid coordinates provided to calculateQiblaDirection');
+        return 0;
+      }
       const phi = lat * Math.PI / 180.0;
       const lambda = lon * Math.PI / 180.0;
       const phiK = KAABA_LAT * Math.PI / 180.0;
       const lambdaK = KAABA_LON * Math.PI / 180.0;
-      // Formula for initial bearing (degrees)
-      const psi = (180.0/Math.PI) * Math.atan2(
-        Math.sin(lambdaK - lambda),
-        Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
-      );
-      return psi;
+      
+      // Great circle bearing calculation
+      const y = Math.sin(lambdaK - lambda) * Math.cos(phiK);
+      const x = Math.cos(phi) * Math.sin(phiK) - 
+               Math.sin(phi) * Math.cos(phiK) * Math.cos(lambdaK - lambda);
+      const bearing = Math.atan2(y, x) * 180.0 / Math.PI;
+      
+      // Normalize to 0-360
+      return (bearing + 360) % 360;
     }
 
     /**
@@ -102,44 +109,103 @@
      */
     function handleOrientation(e) {
       if (qiblaBearing === null) return;
+
       let heading;
-      if (typeof e.webkitCompassHeading !== 'undefined') {
+      if (e.webkitCompassHeading !== undefined) {
+        // iOS devices
         heading = e.webkitCompassHeading;
-      } else if (typeof e.alpha === 'number') {
-        // Most browsers: alpha is 0 when facing north, increases clockwise
+      } else if (e.absolute === true && e.alpha !== null) {
+        // Android devices with absolute orientation
         heading = 360 - e.alpha;
-        if (heading < 0) heading += 360;
+      } else if (e.alpha !== null) {
+        // Fallback for other devices
+        heading = e.alpha;
+        // Try to correct for screen orientation
+        if (window.screen.orientation) {
+          const screenOrientation = window.screen.orientation.type;
+          if (screenOrientation.includes('landscape')) {
+            heading = e.alpha + 90;
+          }
+        }
       } else {
-        heading = 0;
+        console.warn('Device orientation data not available');
+        return;
       }
+
+      // Normalize heading to 0-360
+      heading = ((heading % 360) + 360) % 360;
+
+      // Calculate rotation needed (Qibla relative to device heading)
       const rotation = qiblaBearing - heading;
-      qiblaArrow.style.transform = `rotate(${rotation}deg)`;
+
+      // Apply rotation with smooth transition
+      if (qiblaArrow) {
+        qiblaArrow.style.transition = 'transform 0.2s ease-out';
+        qiblaArrow.style.transform = `rotate(${rotation}deg)`;
+      }
+
+      // Update bearing display (show Qibla direction, not device heading)
+      const bearingDisplay = document.getElementById('qibla-bearing-display');
+      if (bearingDisplay) {
+        const dirLetter = (qiblaBearing >= 315 || qiblaBearing < 45) ? 'N'
+                         : (qiblaBearing < 135) ? 'E'
+                         : (qiblaBearing < 225) ? 'S' : 'W';
+        bearingDisplay.textContent = `${dirLetter} ${Math.round(qiblaBearing)}°`;
+      }
     }
 
     /**
      * Start listening to compass events (with permission for iOS if needed).
      */
     function startCompass() {
-      // Hide the start button after starting
       const btn = document.getElementById('qibla-start');
       if (btn) btn.style.display = 'none';
+
+      // First check if device has the required sensors
+      if (!window.DeviceOrientationEvent) {
+        alert('عذراً، جهازك لا يدعم استخدام البوصلة.');
+        if (btn) btn.style.display = 'inline-block';
+        return;
+      }
+
       // iOS 13+ requires permission prompt
-      if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
-            window.addEventListener('deviceorientation', handleOrientation, true);
-          } else {
-            alert('لم يتم منح إذن استخدام البوصلة.');
-          }
-        }).catch(console.error);
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              initializeCompass();
+            } else {
+              alert('لم يتم منح إذن استخدام البوصلة.');
+              if (btn) btn.style.display = 'inline-block';
+            }
+          })
+          .catch(error => {
+            console.error('Error requesting device orientation permission:', error);
+            alert('حدث خطأ أثناء طلب إذن استخدام البوصلة.');
+            if (btn) btn.style.display = 'inline-block';
+          });
       } else {
         // Other devices: start directly
-        if ('ondeviceorientationabsolute' in window) {
-          window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-        } else {
-          window.addEventListener('deviceorientation', handleOrientation, true);
-        }
+        initializeCompass();
       }
+    }
+
+    function initializeCompass() {
+      // Remove any existing listeners first
+      window.removeEventListener('deviceorientationabsolute', handleOrientation);
+      window.removeEventListener('deviceorientation', handleOrientation);
+      
+      // Try absolute orientation first
+      if ('ondeviceorientationabsolute' in window) {
+        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+      } else {
+        window.addEventListener('deviceorientation', handleOrientation, true);
+      }
+      
+      // Add error handling for sensor
+      window.addEventListener('compassneedscalibration', function(event) {
+        alert('يرجى معايرة البوصلة عن طريق تحريك هاتفك في شكل رقم 8.');
+      });
     }
 
     /**
@@ -156,8 +222,8 @@
             throw new Error('Invalid prayer times data');
           }
           const timings = data.data.timings;
-          const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
-          const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+          const prayerNames = { Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+          const order = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
           // Clear the list
           prayerList.innerHTML = '';
           // Get current and next prayer
@@ -389,15 +455,13 @@
       isNext ? 'bg-golden-light dark:bg-golden text-white font-bold shadow-md' : 'bg-white/50 dark:bg-darkbg/50'
     }`;
     card.setAttribute('data-prayer', nameAr);
-    
+
     card.innerHTML = `
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 flex items-center justify-center rounded-full ${
           isNext ? 'bg-white/20 dark:bg-black/20' : 'bg-golden-light/20 dark:bg-golden/20'
         }">
-          <span class="text-lg ${isNext ? 'text-white' : 'text-golden dark:text-golden-light'}">
-            ${getEmojiForPrayer(nameAr)}
-          </span>
+          ${getIconForPrayer(nameAr)}
         </div>
         <span class="text-lg">${nameAr}</span>
       </div>
@@ -407,15 +471,23 @@
     return card;
   }
 
-  function getEmojiForPrayer(name) {
-    const emojiMap = {
-      'الفجر': '🌅',
-      'الظهر': '☀️',
-      'العصر': '🌤️',
-      'المغرب': '🌅',
-      'العشاء': '🌙'
-    };
-    return emojiMap[name] || '🕌';
+  function getIconForPrayer(name) {
+    switch (name) {
+      case 'الفجر':
+        return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a67c2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="M5.22 5.22l1.42 1.42"/><path d="M2 12h2"/><path d="M5.22 18.78l1.42-1.42"/><path d="M12 20v2"/><path d="M18.78 18.78l-1.42-1.42"/><path d="M20 12h2"/><path d="M18.78 5.22l-1.42 1.42"/><circle cx="12" cy="12" r="5"/></svg>';
+      case 'الشروق':
+        return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e0c97f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M5.22 5.22l1.42 1.42"/><path d="M2 12h2"/><path d="M5.22 18.78l1.42-1.42"/><path d="M12 20v2"/><path d="M18.78 18.78l-1.42-1.42"/><path d="M20 12h2"/><path d="M18.78 5.22l-1.42 1.42"/><circle cx="12" cy="16" r="5"/></svg>';
+      case 'الظهر':
+        return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e0c97f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg>';
+      case 'العصر':
+        return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a67c2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 12l3 3"/></svg>';
+      case 'المغرب':
+        return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e07c2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M2 20h20"/><path d="M7 20v2"/><path d="M17 20v2"/></svg>';
+      case 'العشاء':
+        return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#23201a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M17 17l4 4"/><path d="M3 21l4-4"/></svg>';
+      default:
+        return '';
+    }
   }
   // Sidebar Management
   const SidebarManager = {

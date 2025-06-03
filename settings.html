@@ -1,369 +1,447 @@
+<!-- Settings Page for Islamic App -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Islamic Website</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
-        
-        body {
-            font-family: 'Amiri', serif;
-            background-color: #f8f5f0;
-        }
-        
-        .islamic-pattern {
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iI2U4ZTRkZSI+PC9yZWN0PjxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjZThlNGRlIj48L3JlY3Q+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3BhdHRlcm4pIj48L3JlY3Q+PC9zdmc+');
-            opacity: 0.1;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }
-        
-        .settings-card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-        }
-        
-        .settings-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-            background-color: #2e7d32;
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            border-radius: 0.5rem;
-        }
-        
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        
-        .dropdown-item {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .dropdown-item:hover {
-            background-color: #f1f1f1;
-        }
-    </style>
-</head>
-<body class="min-h-screen relative">
-    <div class="islamic-pattern"></div>
+    <title>الإعدادات - تطبيق الأذكار</title>
     
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl md:text-4xl font-bold text-green-800 mb-2">الإعدادات</h1>
-            <p class="text-gray-600">قم بتخصيص تجربتك على موقعنا الإسلامي</p>
-        </header>
+    <!-- Tailwind CSS -->
+    <script src="js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="min-h-screen bg-cream dark:bg-darkbg transition-all duration-300">
+    <div id="header-placeholder"></div>
+    <div id="profile-sidebar-container"></div>
+
+    <main class="container mx-auto px-4 py-6">
+        <h2 class="label-section text-3xl font-bold mb-8 text-center text-golden" data-i18n="settings">الإعدادات</h2>
         
-        <!-- Settings Navigation -->
-        <div class="flex flex-col md:flex-row gap-6">
-            <!-- Sidebar -->
-            <div class="w-full md:w-1/4">
-                <div class="bg-white rounded-lg shadow-md p-4 settings-card">
-                    <h2 class="text-xl font-semibold text-green-800 mb-4 border-b pb-2">القائمة</h2>
-                    <ul class="space-y-2">
-                        <li>
-                            <a href="#" class="flex items-center p-2 text-green-700 bg-green-50 rounded-lg">
-                                <i class="fas fa-user-circle mr-2"></i>
-                                الحساب
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                                <i class="fas fa-moon mr-2"></i>
-                                الوضع الليلي
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                                <i class="fas fa-bell mr-2"></i>
-                                الإشعارات
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                                <i class="fas fa-quran mr-2"></i>
-                                تفضيلات القرآن
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                                <i class="fas fa-language mr-2"></i>
-                                اللغة
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
-                                <i class="fas fa-shield-alt mr-2"></i>
-                                الخصوصية
-                            </a>
-                        </li>
+        <section class="bg-white/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 mb-8 transition-all duration-300 max-w-xl mx-auto shadow-lg backdrop-blur-sm">
+            <form id="settings-form" class="space-y-8">
+                <!-- Language Section -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-language"></i> <span data-i18n="language">اللغة</span></h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center gap-2 p-3 border border-golden-light dark:border-golden rounded-lg hover:bg-golden/10 cursor-pointer transition-all duration-300">
+                            <input type="radio" name="language" value="ar" class="accent-golden">
+                            <span class="text-lg">العربية</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-3 border border-golden-light dark:border-golden rounded-lg hover:bg-golden/10 cursor-pointer transition-all duration-300">
+                            <input type="radio" name="language" value="en" class="accent-golden">
+                            <span class="text-lg">English</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Quran Settings -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-quran"></i> <span data-i18n="quran_settings">إعدادات القرآن</span></h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <label class="flex-1 text-right" data-i18n="recitation_speed">سرعة القراءة:</label>
+                            <input type="range" id="recitation-speed" min="0.5" max="2" step="0.1" value="1" class="w-3/4 accent-golden">
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <label class="flex-1 text-right" data-i18n="quran_translation">ترجمة القرآن:</label>
+                            <select id="quran-translation" class="settings-select border border-golden-light dark:border-golden rounded-lg p-2">
+                                <option value="ur">الترجمة الأردية</option>
+                                <option value="en">English Translation</option>
+                                <option value="fr">Traduction Française</option>
+                                <option value="es">Traducción Española</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <label class="flex-1 text-right" data-i18n="quran_reciter">القارئ:</label>
+                            <select id="quran-reciter" class="settings-select border border-golden-light dark:border-golden rounded-lg p-2">
+                                <option value="1">القارئ 1</option>
+                                <option value="2">القارئ 2</option>
+                                <option value="3">القارئ 3</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prayer Times Settings -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-clock"></i> <span data-i18n="prayer_times">مواقيت الصلاة</span></h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <label class="flex-1 text-right" data-i18n="time_format">عرض الوقت:</label>
+                            <select id="time-format" class="settings-select border border-golden-light dark:border-golden rounded-lg p-2">
+                                <option value="12h">12 ساعة</option>
+                                <option value="24h">24 ساعة</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <label class="flex-1 text-right" data-i18n="prayer_reminder_time">مقدار التذكير قبل الصلاة:</label>
+                            <input type="number" id="prayer-reminder-time" min="5" max="60" value="10" class="w-20 border border-golden-light dark:border-golden rounded-lg p-2 text-center">
+                            <span data-i18n="minutes">دقيقة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Adhkar Categories -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-book-open"></i> <span data-i18n="adhkar_categories">فئات الأذكار</span></h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="daily-adhkar" class="accent-golden" checked>
+                            <span data-i18n="daily_adhkar">أذكار يومية</span>
+                        </label>
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="travel-adhkar" class="accent-golden" checked>
+                            <span data-i18n="travel_adhkar">أذكار السفر</span>
+                        </label>
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="sleep-adhkar" class="accent-golden" checked>
+                            <span data-i18n="sleep_adhkar">أذكار النوم</span>
+                        </label>
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="waking-adhkar" class="accent-golden" checked>
+                            <span data-i18n="waking_adhkar">أذكار الاستيقاظ</span>
+                        </label>
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="after-prayer" class="accent-golden" checked>
+                            <span data-i18n="after_prayer">بعد الصلاة</span>
+                        </label>
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="after-wudu" class="accent-golden" checked>
+                            <span data-i18n="after_wudu">بعد الوضوء</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Backup & Restore -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-cloud"></i> <span data-i18n="backup">النسخ الاحتياطي</span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button type="button" class="btn-main bg-gradient-to-r from-golden to-cream text-cream hover:text-golden border border-golden rounded-lg py-3 px-6 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa fa-download"></i> <span data-i18n="backup_btn">نسخ احتياطي</span>
+                        </button>
+                        <button type="button" class="btn-main bg-gradient-to-r from-cream to-golden text-golden hover:text-cream border border-golden rounded-lg py-3 px-6 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa fa-upload"></i> <span data-i18n="restore_btn">استعادة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- App Security -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-shield-alt"></i> <span data-i18n="app_security">أمان التطبيق</span></h3>
+                    <div class="space-y-4">
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="biometric-lock" class="accent-golden">
+                            <span class="flex-1" data-i18n="biometric_lock">قفل التطبيق بالبصمة</span>
+                            <i class="fa fa-fingerprint text-blue-500"></i>
+                        </label>
+                        
+                        <div class="flex items-center gap-4">
+                            <label class="flex-1 text-right" data-i18n="lock_timeout">مدة القفل التلقائي:</label>
+                            <select id="lock-timeout" class="settings-select border border-golden-light dark:border-golden rounded-lg p-2">
+                                <option value="5">5 دقائق</option>
+                                <option value="15">15 دقيقة</option>
+                                <option value="30">30 دقيقة</option>
+                                <option value="60">1 ساعة</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-bell"></i> <span data-i18n="notifications">التنبيهات</span></h3>
+                    <div class="space-y-4">
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="prayer-notifications" class="accent-golden" checked>
+                            <span class="flex-1" data-i18n="prayer_notifications">تنبيهات الصلاة</span>
+                            <i class="fa fa-check-circle text-green-500"></i>
+                        </label>
+                        
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="adhkar-notifications" class="accent-golden" checked>
+                            <span class="flex-1" data-i18n="adhkar_notifications">تنبيهات الأذكار</span>
+                            <i class="fa fa-check-circle text-green-500"></i>
+                        </label>
+                        
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="quran-reminders" class="accent-golden">
+                            <span class="flex-1" data-i18n="quran_reminders">تذكيرات القرآن</span>
+                            <i class="fa fa-check-circle text-green-500"></i>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-user"></i> <span data-i18n="account">الحساب</span></h3>
+                    <div class="space-y-4">
+                        <button type="button" class="btn-main bg-gradient-to-r from-golden to-cream text-cream hover:text-golden border border-golden rounded-lg py-3 px-6 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa fa-sign-out-alt"></i> <span data-i18n="logout">تسجيل الخروج</span>
+                        </button>
+                        
+                        <button type="button" class="btn-main bg-gradient-to-r from-cream to-golden text-golden hover:text-cream border border-golden rounded-lg py-3 px-6 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa fa-edit"></i> <span data-i18n="edit_account">تعديل الحساب</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- About Section -->
+                <div class="settings-group mt-8 p-6 rounded-xl bg-cream/60 dark:bg-darkbg/60 border border-golden-light dark:border-golden">
+                    <h3 class="font-bold text-xl mb-4 flex items-center gap-2"><i class="fa fa-info-circle text-golden"></i> <span data-i18n="about_app">عن التطبيق</span></h3>
+                    <ul class="text-sm space-y-2">
+                        <li><span data-i18n="version">الإصدار</span>: <span id="app-version">1.0.0</span></li>
+                        <li><span data-i18n="developed_by">تطوير</span>: فريق تطبيق الأذكار</li>
+                        <li><a href="#" class="text-golden underline hover:text-golden-dark" data-i18n="privacy_policy">سياسة الخصوصية</a></li>
+                        <li><a href="#" class="text-golden underline hover:text-golden-dark" data-i18n="contact_us">الاتصال بنا</a></li>
+                        <li><a href="#" class="text-golden underline hover:text-golden-dark" data-i18n="usage_guide">تعليمات الاستخدام</a></li>
                     </ul>
                 </div>
-            </div>
-            
-            <!-- Main Settings Content -->
-            <div class="w-full md:w-3/4">
-                <!-- Account Settings -->
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6 settings-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold text-green-800">
-                            <i class="fas fa-user-circle mr-2"></i>
-                            إعدادات الحساب
-                        </h2>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-4">
-                            <div class="mb-2 md:mb-0">
-                                <h3 class="font-medium text-gray-800">اسم المستخدم</h3>
-                                <p class="text-sm text-gray-500">يمكنك تغيير اسم المستخدم الخاص بك</p>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="text" value="مسلم_123" class="border rounded-lg px-3 py-2 text-right w-full md:w-64">
-                                <button class="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                                    حفظ
-                                </button>
-                            </div>
+
+                <!-- Personalization -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-palette"></i> <span data-i18n="personalization">تخصيص المظهر</span></h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-2" data-i18n="accent_color">لون التمييز:</label>
+                            <select id="accent-color" class="settings-select border border-golden-light dark:border-golden rounded-lg p-2 w-full">
+                                <option value="golden">ذهبي</option>
+                                <option value="emerald">أخضر زمردي</option>
+                                <option value="blue">أزرق</option>
+                                <option value="rose">وردي</option>
+                                <option value="violet">بنفسجي</option>
+                            </select>
                         </div>
-                        
-                        <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-4">
-                            <div class="mb-2 md:mb-0">
-                                <h3 class="font-medium text-gray-800">البريد الإلكتروني</h3>
-                                <p class="text-sm text-gray-500">muslim@example.com</p>
-                            </div>
-                            <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
-                                تغيير البريد الإلكتروني
-                            </button>
-                        </div>
-                        
-                        <div class="flex flex-col md:flex-row md:items-center justify-between">
-                            <div class="mb-2 md:mb-0">
-                                <h3 class="font-medium text-gray-800">كلمة المرور</h3>
-                                <p class="text-sm text-gray-500">آخر تحديث قبل 3 أشهر</p>
-                            </div>
-                            <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
-                                تغيير كلمة المرور
-                            </button>
+                        <div>
+                            <label class="block mb-2" data-i18n="font_family">نوع الخط:</label>
+                            <select id="font-family" class="settings-select border border-golden-light dark:border-golden rounded-lg p-2 w-full">
+                                <option value="default">افتراضي</option>
+                                <option value="naskh">نسخ</option>
+                                <option value="kufi">كوفي</option>
+                                <option value="diwani">ديواني</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Appearance Settings -->
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6 settings-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold text-green-800">
-                            <i class="fas fa-paint-brush mr-2"></i>
-                            المظهر
-                        </h2>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-4">
-                            <div class="mb-2 md:mb-0">
-                                <h3 class="font-medium text-gray-800">الوضع الليلي</h3>
-                                <p class="text-sm text-gray-500">تمكين الوضع المظلم لتجربة قراءة مريحة</p>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div class="flex flex-col md:flex-row md:items-center justify-between">
-                            <div class="mb-2 md:mb-0">
-                                <h3 class="font-medium text-gray-800">حجم الخط</h3>
-                                <p class="text-sm text-gray-500">ضبط حجم الخط لقراءة أكثر راحة</p>
-                            </div>
-                            <div class="flex items-center">
-                                <button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-l-lg hover:bg-gray-300">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="bg-gray-100 px-4 py-1">متوسط</span>
-                                <button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-r-lg hover:bg-gray-300">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
+                <!-- Accessibility -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-universal-access"></i> <span data-i18n="accessibility">تسهيلات الاستخدام</span></h3>
+                    <div class="flex flex-col gap-4">
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="high-contrast" class="accent-golden">
+                            <span data-i18n="high_contrast">تفعيل وضع التباين العالي</span>
+                        </label>
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="large-buttons" class="accent-golden">
+                            <span data-i18n="large_buttons">تكبير أزرار التحكم</span>
+                        </label>
                     </div>
                 </div>
-                
-                <!-- Quran Preferences -->
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6 settings-card">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-semibold text-green-800">
-                            <i class="fas fa-quran mr-2"></i>
-                            تفضيلات القرآن
-                        </h2>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-4">
-                            <div class="mb-2 md:mb-0">
-                                <h3 class="font-medium text-gray-800">القارئ المفضل</h3>
-                                <p class="text-sm text-gray-500">اختر القارئ المفضل للاستماع إلى القرآن</p>
-                            </div>
-                            <div class="dropdown relative">
-                                <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center">
-                                    عبد الباسط عبد الصمد
-                                    <i class="fas fa-chevron-down ml-2 text-sm"></i>
-                                </button>
-                                <div class="dropdown-content mt-1 right-0">
-                                    <div class="dropdown-item">عبد الباسط عبد الصمد</div>
-                                    <div class="dropdown-item">مشاري راشد العفاسي</div>
-                                    <div class="dropdown-item">سعد الغامدي</div>
-                                    <div class="dropdown-item">محمود خليل الحصري</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col md:flex-row md:items-center justify-between">
-                            <div class="mb-2 md:mb-0">
-                                <h3 class="font-medium text-gray-800">ترجمة القرآن</h3>
-                                <p class="text-sm text-gray-500">اختر لغة الترجمة المفضلة لديك</p>
-                            </div>
-                            <div class="dropdown relative">
-                                <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center">
-                                    العربية
-                                    <i class="fas fa-chevron-down ml-2 text-sm"></i>
-                                </button>
-                                <div class="dropdown-content mt-1 right-0">
-                                    <div class="dropdown-item">العربية</div>
-                                    <div class="dropdown-item">الإنجليزية</div>
-                                    <div class="dropdown-item">الفرنسية</div>
-                                    <div class="dropdown-item">الأردية</div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Quick Actions -->
+                <div class="settings-group">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2 text-golden"><i class="fa fa-bolt"></i> <span data-i18n="quick_actions">إجراءات سريعة</span></h3>
+                    <div class="flex flex-col gap-4">
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="quick-tasbeeh" class="accent-golden">
+                            <span data-i18n="quick_tasbeeh">زر عائم للمسبحة</span>
+                        </label>
+                        <label class="settings-toggle-item flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="quick-duaa" class="accent-golden">
+                            <span data-i18n="quick_duaa">زر عائم للأدعية</span>
+                        </label>
                     </div>
                 </div>
-                
+                <!-- Divider -->
+                <hr class="my-8 border-golden-light dark:border-golden opacity-50">
+
                 <!-- Save Button -->
-                <div class="flex justify-end">
-                    <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition flex items-center">
-                        <i class="fas fa-save mr-2"></i>
-                        حفظ جميع التغييرات
+                <div class="flex flex-col items-center gap-4 mt-8">
+                    <button type="submit" class="btn-main bg-gradient-to-r from-golden to-cream text-cream hover:text-golden border border-golden rounded-lg py-3 px-8 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-lg">
+                        <i class="fa fa-save"></i> <span data-i18n="save_settings">حفظ الإعدادات</span>
+                    </button>
+                    <button type="button" class="btn-main bg-gradient-to-r from-rose-400 to-rose-600 text-white border border-rose-400 rounded-lg py-2 px-6 shadow hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-base" id="reset-settings">
+                        <i class="fa fa-undo"></i> <span data-i18n="reset_settings">إعادة الإعدادات الافتراضية</span>
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
+            </form>
+            
+            <!-- Success Message -->
+            <div id="settings-success" class="hidden mt-4 text-green-600 dark:text-green-400 font-bold text-center" data-i18n="settings_saved_success">تم حفظ الإعدادات بنجاح!</div>
+        </section>
+    </main>
     
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="js/common.js"></script>
+    <script src="js/include-components.js"></script>
+    <script src="js/sidebar-ui.js"></script>
+    <script src="js/i18n.js"></script>
+
+    <!-- Enhanced Settings Logic -->
     <script>
-        // Simple dark mode toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkModeToggle = document.querySelector('input[type="checkbox"]');
-            
-            darkModeToggle.addEventListener('change', function() {
-                if(this.checked) {
-                    document.body.classList.add('dark');
-                    localStorage.setItem('darkMode', 'enabled');
-                } else {
-                    document.body.classList.remove('dark');
-                    localStorage.setItem('darkMode', 'disabled');
-                }
-            });
-            
-            // Check for saved user preference
-            if(localStorage.getItem('darkMode') === 'enabled') {
-                document.body.classList.add('dark');
-                darkModeToggle.checked = true;
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        // Initialize Firebase app
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Load saved settings
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('appSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                // Apply all saved settings to form elements
+                document.querySelector(`input[name="language"][value="${settings.language || 'ar'}"]`).checked = true;
+                document.querySelector(`input[name="theme"][value="${settings.theme || 'auto'}"]`).checked = true;
+                document.querySelector(`input[name="font-size"][value="${settings.fontSize || 'medium'}"]`).checked = true;
+                document.getElementById('time-format').value = settings.timeFormat || '12h';
+                document.getElementById('prayer-reminder-time').value = settings.prayerReminderTime || '10';
+                document.getElementById('lock-timeout').value = settings.lockTimeout || '15';
+                
+                // Quran settings
+                document.getElementById('recitation-speed').value = settings.recitationSpeed || '1';
+                document.getElementById('quran-translation').value = settings.quranTranslation || 'ur';
+                document.getElementById('quran-reciter').value = settings.quranReciter || '1';
+                
+                // Adhkar categories
+                document.getElementById('daily-adhkar').checked = settings.dailyAdhkar !== undefined ? settings.dailyAdhkar : true;
+                document.getElementById('travel-adhkar').checked = settings.travelAdhkar !== undefined ? settings.travelAdhkar : true;
+                document.getElementById('sleep-adhkar').checked = settings.sleepAdhkar !== undefined ? settings.sleepAdhkar : true;
+                document.getElementById('waking-adhkar').checked = settings.wakingAdhkar !== undefined ? settings.wakingAdhkar : true;
+                document.getElementById('after-prayer').checked = settings.afterPrayer !== undefined ? settings.afterPrayer : true;
+                document.getElementById('after-wudu').checked = settings.afterWudu !== undefined ? settings.afterWudu : true;
+                
+                // Personalization
+                document.getElementById('accent-color').value = settings.accentColor || 'golden';
+                document.getElementById('font-family').value = settings.fontFamily || 'default';
+                
+                // Accessibility
+                document.getElementById('high-contrast').checked = settings.highContrast || false;
+                document.getElementById('large-buttons').checked = settings.largeButtons || false;
+                
+                // Quick Actions
+                document.getElementById('quick-tasbeeh').checked = settings.quickTasbeeh || false;
+                document.getElementById('quick-duaa').checked = settings.quickDuaa || false;
             }
-        });
-        
-        // Dropdown functionality
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            const button = dropdown.querySelector('button');
-            const content = dropdown.querySelector('.dropdown-content');
+        }
+
+        // Save settings
+        function saveSettings() {
+            const settings = {
+                language: document.querySelector('input[name="language"]:checked').value,
+                theme: document.querySelector('input[name="theme"]:checked').value,
+                fontSize: document.querySelector('input[name="font-size"]:checked').value,
+                timeFormat: document.getElementById('time-format').value,
+                prayerReminderTime: document.getElementById('prayer-reminder-time').value,
+                lockTimeout: document.getElementById('lock-timeout').value,
+                recitationSpeed: document.getElementById('recitation-speed').value,
+                quranTranslation: document.getElementById('quran-translation').value,
+                quranReciter: document.getElementById('quran-reciter').value,
+                dailyAdhkar: document.getElementById('daily-adhkar').checked,
+                travelAdhkar: document.getElementById('travel-adhkar').checked,
+                sleepAdhkar: document.getElementById('sleep-adhkar').checked,
+                wakingAdhkar: document.getElementById('waking-adhkar').checked,
+                afterPrayer: document.getElementById('after-prayer').checked,
+                afterWudu: document.getElementById('after-wudu').checked,
+                prayerNotifications: document.getElementById('prayer-notifications').checked,
+                adhkarNotifications: document.getElementById('adhkar-notifications').checked,
+                quranReminders: document.getElementById('quran-reminders').checked,
+                accentColor: document.getElementById('accent-color').value,
+                fontFamily: document.getElementById('font-family').value,
+                highContrast: document.getElementById('high-contrast').checked,
+                largeButtons: document.getElementById('large-buttons').checked,
+                quickTasbeeh: document.getElementById('quick-tasbeeh').checked,
+                quickDuaa: document.getElementById('quick-duaa').checked,
+            };
             
-            button.addEventListener('click', () => {
-                content.style.display = content.style.display === 'block' ? 'none' : 'block';
-            });
+            // Save to localStorage
+            localStorage.setItem('appSettings', JSON.stringify(settings));
             
-            // Close when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target)) {
-                    content.style.display = 'none';
-                }
+            // Save to Firebase (if user is authenticated)
+            // db.collection('users').doc(userId).set({ settings }, { merge: true });
+            
+            // Show success message
+            document.getElementById('settings-success').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('settings-success').classList.add('hidden');
+            }, 2000);
+        }
+
+        // Reset settings
+        document.getElementById('reset-settings').addEventListener('click', function() {
+            localStorage.removeItem('appSettings');
+            window.location.reload();
+        });
+
+        // Apply settings to UI
+        function applySettings() {
+            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            
+            // Apply theme
+            if (settings.theme) {
+                document.documentElement.setAttribute('data-theme', settings.theme);
+            }
+            
+            // Apply font size
+            if (settings.fontSize) {
+                document.documentElement.setAttribute('data-font-size', settings.fontSize);
+            }
+            
+            // Apply other settings
+            if (settings.timeFormat) {
+                document.documentElement.setAttribute('data-time-format', settings.timeFormat);
+            }
+            if (settings.recitationSpeed) {
+                document.documentElement.setAttribute('data-recitation-speed', settings.recitationSpeed);
+            }
+        }
+
+        // Language switching logic
+        function setLanguage(lang) {
+            // Save to settings
+            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            settings.language = lang;
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+            // Change html lang attribute
+            document.documentElement.lang = lang;
+            // Optionally: reload or update UI text dynamically
+            // For demo: reload to apply language
+            window.location.reload();
+        }
+        // Listen for language change
+        document.querySelectorAll('input[name="language"]').forEach(el => {
+            el.addEventListener('change', function() {
+                setLanguage(this.value);
             });
         });
-        
-        // Font size adjustment
-        const fontSizeButtons = document.querySelectorAll('.flex.items-center button');
-        const fontSizeDisplay = document.querySelector('.flex.items-center span');
-        const fontSizes = ['صغير', 'متوسط', 'كبير', 'كبير جداً'];
-        let currentSize = 1;
-        
-        fontSizeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.textContent.includes('+') && currentSize < fontSizes.length - 1) {
-                    currentSize++;
-                } else if (button.textContent.includes('-') && currentSize > 0) {
-                    currentSize--;
-                }
-                fontSizeDisplay.textContent = fontSizes[currentSize];
-                // Here you would also adjust the actual font size on the page
-            });
+
+        // Form submission handler
+        document.getElementById('settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSettings();
+        });
+
+        // Load and apply settings on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            applySettings();
         });
     </script>
 </body>

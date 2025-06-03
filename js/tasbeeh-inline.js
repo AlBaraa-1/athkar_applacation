@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const targetSelect = document.getElementById('target-select');
   const customTargetContainer = document.getElementById('custom-target-container');
   const customTargetInput = document.getElementById('custom-target');
+  const countBtn = document.getElementById('count-btn');
 
   let counter = 0;
   let target = 33;
@@ -128,18 +129,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const removeBtn = document.createElement('button');
       removeBtn.className = 'custom-dhikr-remove-btn';
       removeBtn.title = 'حذف';
-      removeBtn.innerHTML = '&times;';
+      removeBtn.setAttribute('aria-label', 'حذف هذا الذكر');
+      removeBtn.textContent = 'حذف'; // Use word instead of icon
+      removeBtn.tabIndex = 0;
       removeBtn.onclick = () => {
-        const newList = loadCustomDhikrList();
-        newList.splice(idx, 1);
-        saveCustomDhikrList(newList);
-        renderCustomDhikrList();
-        updateCustomDhikrOptions();
-        // If current select is this dhikr, reset to default
-        if (tasbeehTypeSelect.value === dhikr) {
-          tasbeehTypeSelect.value = 'سبحان الله';
-          tasbeehTypeSelect.dispatchEvent(new Event('change'));
-        }
+        // Confirm deletion for better UX
+        if (!confirm('هل تريد حذف هذا الذكر المخصص؟')) return;
+        // Animate removal
+        item.style.transition = 'opacity 0.3s, transform 0.3s';
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(40px)';
+        setTimeout(() => {
+          const newList = loadCustomDhikrList();
+          newList.splice(idx, 1);
+          saveCustomDhikrList(newList);
+          renderCustomDhikrList();
+          updateCustomDhikrOptions();
+          // If current select is this dhikr, reset to default
+          if (tasbeehTypeSelect.value === dhikr) {
+            tasbeehTypeSelect.value = 'سبحان الله';
+            tasbeehTypeSelect.dispatchEvent(new Event('change'));
+          }
+        }, 300);
       };
       item.appendChild(removeBtn);
       customDhikrListDiv.appendChild(item);
@@ -189,6 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
     tasbeehTypeSelect.dispatchEvent(new Event('change'));
     customDhikrInput.value = '';
     customDhikrInput.blur();
+    // Animate input for feedback
+    customDhikrInput.classList.add('input-success');
+    setTimeout(() => customDhikrInput.classList.remove('input-success'), 400);
   });
 
   // Allow Enter key to add
@@ -224,6 +238,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  if (countBtn) {
+    countBtn.addEventListener('click', () => {
+      if (target === Infinity || counter < target) {
+        counter++;
+        counterDisplay.textContent = counter;
+        updateProgressRing();
+        saveTasbeehStats();
+        if (target !== Infinity && counter === target) {
+          createConfetti();
+        }
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10);
+        }
+      }
+    });
+  }
+
   resetBtn.addEventListener('click', () => {
     counter = 0;
     counterDisplay.textContent = counter;
@@ -254,105 +285,102 @@ document.addEventListener('DOMContentLoaded', () => {
     updateProgressRing();
   });
 
-  // Custom Dhikr selection and delete button logic
-  const dhikrSelect = document.querySelector('.custom-dhikr-select-row select');
-  const deleteBtn = document.querySelector('.selected-dhikr-delete-btn');
-  const selectRow = document.querySelector('.custom-dhikr-select-row');
+  // Custom Dhikr Management
+  const dhikrWrapper = document.querySelector('.dhikr-select-wrapper');
+  const deleteButton = document.querySelector('.delete-dhikr-btn');
+  if (deleteButton) {
+    deleteButton.innerHTML = 'حذف'; // Use word instead of icon
+  }
 
-  // Update delete button visibility when select changes
-  dhikrSelect.addEventListener('change', () => {
-    const selectedOption = dhikrSelect.options[dhikrSelect.selectedIndex];
-    const isCustomDhikr = selectedOption.dataset.custom === 'true';
+  // Function to add custom dhikr
+  function addCustomDhikr(dhikrText) {
+    if (!dhikrText) return;
     
-    selectRow.classList.toggle('has-custom-selected', isCustomDhikr);
+    let list = loadCustomDhikrList();
+    if (list.includes(dhikrText)) return; // Prevent duplicates
     
-    if (isCustomDhikr) {
-      deleteBtn.setAttribute('data-dhikr', selectedOption.value);
-    } else {
-      deleteBtn.removeAttribute('data-dhikr');
-    }
-  });
-
-  // Handle delete button click
-  deleteBtn.addEventListener('click', () => {
-    const dhikrToDelete = deleteBtn.getAttribute('data-dhikr');
-    if (!dhikrToDelete) return;
+    list.push(dhikrText);
+    saveCustomDhikrList(list);
     
-    // Remove from localStorage
-    const customList = loadCustomDhikrList().filter(d => d !== dhikrToDelete);
-    saveCustomDhikrList(customList);
-    
-    // Remove from select
-    const optionToRemove = Array.from(dhikrSelect.options)
-      .find(opt => opt.value === dhikrToDelete);
-    if (optionToRemove) {
-      dhikrSelect.removeChild(optionToRemove);
-    }
-    
-    // Reset to first option
-    dhikrSelect.selectedIndex = 0;
-    selectRow.classList.remove('has-custom-selected');
-  });
-
-  // Add custom dhikr to select
-  function addCustomDhikrToSelect(dhikrText) {
-    const select = document.querySelector('.custom-dhikr-select-row select');
+    // Add new option to select
     const option = document.createElement('option');
     option.value = dhikrText;
+    option.textContent = dhikrText;
     option.dataset.custom = 'true';
     
-    const optionContent = document.createElement('div');
-    optionContent.className = 'custom-dhikr-option';
+    // Insert before the "Add custom" option
+    const addCustomOption = Array.from(tasbeehTypeSelect.options).find(opt => opt.value === 'إضافة ذكر مخصص...');
+    tasbeehTypeSelect.insertBefore(option, addCustomOption);
     
-    const dhikrSpan = document.createElement('span');
-    dhikrSpan.textContent = dhikrText;
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'delete-custom-dhikr';
-    deleteButton.innerHTML = '🗑️';
-    deleteButton.title = 'حذف';
-    
-    optionContent.appendChild(dhikrSpan);
-    optionContent.appendChild(deleteButton);
-    
-    // Set the option's text and HTML content
-    option.textContent = dhikrText;
-    option.innerHTML = optionContent.outerHTML;
-    
-    select.appendChild(option);
-    select.value = dhikrText; // Select the new dhikr
+    // Select the new dhikr
+    tasbeehTypeSelect.value = dhikrText;
+    tasbeehTypeSelect.dispatchEvent(new Event('change'));
   }
 
   // Handle delete button clicks
-  document.querySelector('.custom-dhikr-select-row').addEventListener('click', (e) => {
-    if (e.target.closest('.delete-custom-dhikr')) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const select = document.querySelector('.custom-dhikr-select-row select');
-      const selectedOption = select.options[select.selectedIndex];
-      
-      if (selectedOption && selectedOption.dataset.custom === 'true') {
-        const dhikrText = selectedOption.value;
-        
-        // Remove from localStorage
-        const customList = loadCustomDhikrList().filter(d => d !== dhikrText);
-        saveCustomDhikrList(customList);
-        
-        // Remove from select
-        select.removeChild(selectedOption);
-        
-        // Reset selection to first option
-        select.selectedIndex = 0;
-      }
+  deleteButton.addEventListener('click', () => {
+    const selectedOption = tasbeehTypeSelect.options[tasbeehTypeSelect.selectedIndex];
+    if (!selectedOption || selectedOption.dataset.custom !== 'true') return;
+    
+    const dhikrText = selectedOption.value;
+    // Confirmation before delete
+    if (!confirm('هل تريد حذف هذا الذكر المخصص؟')) return;
+    // Remove from localStorage
+    const list = loadCustomDhikrList().filter(d => d !== dhikrText);
+    saveCustomDhikrList(list);
+    // Remove from select
+    tasbeehTypeSelect.removeChild(selectedOption);
+    // Update the custom dhikr list and dropdown options
+    renderCustomDhikrList();
+    updateCustomDhikrOptions();
+    // Reset selection to first option
+    tasbeehTypeSelect.selectedIndex = 0;
+    tasbeehTypeSelect.dispatchEvent(new Event('change'));
+  });
+
+  // Update UI when selection changes
+  tasbeehTypeSelect.addEventListener('change', () => {
+    const selectedOption = tasbeehTypeSelect.options[tasbeehTypeSelect.selectedIndex];
+    const isCustomDhikr = selectedOption.dataset.custom === 'true';
+    
+    dhikrWrapper.classList.toggle('has-custom', isCustomDhikr);
+    
+    if (tasbeehTypeSelect.value === 'إضافة ذكر مخصص...') {
+        customDhikrContainer.style.display = 'flex';
+        customDhikrInput.focus();
+    } else {
+        customDhikrContainer.style.display = 'none';
     }
   });
 
-  // Initial population of custom dhikr to select (if any exist)
-  renderCustomDhikrList();
-  updateCustomDhikrOptions();
-  const initialCustomDhikrList = loadCustomDhikrList();
-  initialCustomDhikrList.forEach(dhikr => {
-    addCustomDhikrToSelect(dhikr);
+  // Handle custom dhikr input
+  addCustomDhikrBtn.addEventListener('click', () => {
+    const val = customDhikrInput.value.trim();
+    if (!val) return;
+    
+    addCustomDhikr(val);
+    customDhikrInput.value = '';
+    customDhikrContainer.style.display = 'none';
+  });
+
+  // Allow Enter key to add custom dhikr
+  customDhikrInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addCustomDhikrBtn.click();
+    }
+  });
+
+  // Initialize
+  const savedCustomDhikr = loadCustomDhikrList();
+  savedCustomDhikr.forEach(dhikr => {
+    const option = document.createElement('option');
+    option.value = dhikr;
+    option.textContent = dhikr;
+    option.dataset.custom = 'true';
+    
+    // Insert before the "Add custom" option
+    const addCustomOption = Array.from(tasbeehTypeSelect.options).find(opt => opt.value === 'إضافة ذكر مخصص...');
+    tasbeehTypeSelect.insertBefore(option, addCustomOption);
   });
 });

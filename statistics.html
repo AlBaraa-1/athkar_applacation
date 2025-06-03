@@ -1,0 +1,147 @@
+<!-- الإحصائيات - صفحة موحدة باستخدام القالب -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الإحصائيات - تطبيق الأذكار</title>
+    <link rel="preload" href="css/styles.css" as="style">
+    <link rel="preconnect" href="https://api.aladhan.com">
+    <script src="js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+</head>
+<body class="min-h-screen bg-cream dark:bg-darkbg transition-all duration-300">
+    <!-- Header -->
+    <header class="bg-golden-light dark:bg-golden-dark text-darkbg dark:text-cream shadow-lg transition-all duration-300 sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-mosque text-2xl"></i>
+                    <h1 class="text-xl md:text-2xl font-bold">تطبيق الأذكار</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="darkmode-toggle-container">
+                        <button id="darkmode-toggle" aria-label="تبديل الوضع الليلي" class="btn-main darkmode-toggle">
+                            <span id="darkmode-emoji-sun" class="darkmode-emoji sun">☀️</span>
+                            <span id="darkmode-emoji-moon" class="darkmode-emoji moon">🌙</span>
+                            <span id="darkmode-knob" class="darkmode-knob"></span>
+                        </button>
+                    </div>
+                    <button id="profile-slider-btn" aria-label="القائمة الشخصية" class="btn-main p-2 rounded-full">
+                        <i class="fas fa-bars text-xl" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Sidebar -->
+    <div id="profile-sidebar-container"></div>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <h2 class="label-section">الإحصائيات</h2>
+        <section id="statistics-section" class="bg-white/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 mb-8 transition-all duration-300">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="stats-card">
+              <div class="stats-icon"><i class="fas fa-praying-hands"></i></div>
+              <div class="stats-value" id="stat-total-tasbeeh">0</div>
+              <div class="stats-label">إجمالي التسبيح</div>
+              <div class="stats-trend" id="tasbeeh-trend">
+                <i class="fas fa-arrow-up text-green-500"></i>
+                <span>12% زيادة</span>
+              </div>
+            </div>
+            <div class="stats-card">
+              <div class="stats-icon"><i class="fas fa-star"></i></div>
+              <div class="stats-value" id="stat-favorites">0</div>
+              <div class="stats-label">الأذكار المفضلة</div>
+            </div>
+            <div class="stats-card">
+              <div class="stats-icon"><i class="fas fa-calendar-check"></i></div>
+              <div class="stats-value" id="stat-prayer-consistency">0%</div>
+              <div class="stats-label">انتظام الصلاة</div>
+              <div class="progress-bar mt-2">
+                <div class="progress-fill" id="prayer-progress"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-8">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-golden-dark dark:text-golden-light">توزيع التسبيح</h3>
+              <select id="chart-period" class="chart-period-select">
+                <option value="week">الأسبوع</option>
+                <option value="month">الشهر</option>
+                <option value="year">السنة</option>
+              </select>
+            </div>
+            <div class="chart-container">
+              <canvas id="tasbeeh-chart" height="300"></canvas>
+            </div>
+          </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-golden-light/20 dark:bg-golden-dark/20 text-golden-dark dark:text-golden-light py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0 text-center md:text-right">
+                    <h3 class="text-xl font-bold mb-1">تطبيق الأذكار</h3>
+                    <p class="text-golden dark:text-golden-light/80 text-sm">تطبيق متكامل للأذكار وأوقات الصلاة</p>
+                    <div class="hijri-date text-sm mt-1" lang="ar">
+                      التاريخ الهجري: <span id="hijri-date-display">--/--/----</span>
+                    </div>
+                </div>
+                <div class="flex gap-4 mb-4 md:mb-0">
+                    <a href="#" aria-label="Facebook" class="footer-social-link">
+                        <i class="fab fa-facebook-f text-lg"></i>
+                    </a>
+                    <a href="#" aria-label="Twitter" class="footer-social-link">
+                        <i class="fab fa-twitter text-lg"></i>
+                    </a>
+                    <a href="#" aria-label="Instagram" class="footer-social-link">
+                        <i class="fab fa-instagram text-lg"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-golden/20 dark:border-golden-light/20 mt-4 pt-4 text-center text-sm">
+                <p>© 2025 تطبيق الأذكار. جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+    <!-- Location Modal -->
+    <div id="location-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkbg rounded-xl w-full max-w-md p-6">
+            <h3 class="text-xl font-bold mb-4 text-golden-dark dark:text-golden-light">تعيين الموقع</h3>
+            <div class="mb-4">
+                <label class="block text-golden-dark dark:text-golden-light text-sm mb-2">خط العرض</label>
+                <input type="text" id="manual-lat" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light p-2 rounded-lg">
+            </div>
+            <div class="mb-4">
+                <label class="block text-golden-dark dark:text-golden-light text-sm mb-2">خط الطول</label>
+                <input type="text" id="manual-lon" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light p-2 rounded-lg">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button id="cancel-location" class="btn-main btn-secondary">
+                    إلغاء
+                </button>
+                <button id="save-location" class="btn-main">
+                    حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="js/profiles.js"></script>
+    <script src="js/tasbeeh-inline.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/sidebar-ui.js"></script>
+    <script src="js/i18n.js"></script>
+
+</body>
+</html>

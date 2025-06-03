@@ -37,3 +37,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.key === 'Escape') hideSidebar();
   });
 });
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        golden: {
+                            light: '#e0c97f',
+                            DEFAULT: '#a67c2e',
+                            dark: '#7c5c1e'
+                        },
+                        cream: '#fffbe6',
+                        darkbg: '#23201a'
+                    },
+                    fontFamily: {
+                        'tajawal': ['Tajawal', 'sans-serif'],
+                        'amiri': ['Amiri', 'serif']
+                    }
+                }
+            }
+        }
+

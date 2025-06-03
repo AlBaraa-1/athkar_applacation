@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>عداد التسبيح - تطبيق الأذكار</title>
+    <link rel="preload" href="css/styles.css" as="style">
+    <link rel="preconnect" href="https://api.aladhan.com">
+    <script src="js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        golden: {
+                            light: '#e0c97f',
+                            DEFAULT: '#a67c2e',
+                            dark: '#7c5c1e'
+                        },
+                        cream: '#fffbe6',
+                        darkbg: '#23201a'
+                    },
+                    fontFamily: {
+                        'tajawal': ['Tajawal', 'sans-serif'],
+                        'amiri': ['Amiri', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Amiri:wght@400;700&display=swap');
+    </style>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="js/i18n.js"></script>
+</head>
+<body class="min-h-screen bg-cream dark:bg-darkbg transition-all duration-300">
+    <!-- Header -->
+    <header class="bg-golden-light dark:bg-golden-dark text-darkbg dark:text-cream shadow-lg transition-all duration-300 sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-mosque text-2xl"></i>
+                    <h1 class="text-xl md:text-2xl font-bold">تطبيق الأذكار</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="darkmode-toggle-container">
+                        <button id="darkmode-toggle" aria-label="تبديل الوضع الليلي" class="btn-main darkmode-toggle">
+                            <span id="darkmode-emoji-sun" class="darkmode-emoji sun">☀️</span>
+                            <span id="darkmode-emoji-moon" class="darkmode-emoji moon">🌙</span>
+                            <span id="darkmode-knob" class="darkmode-knob"></span>
+                        </button>
+                    </div>
+                    <button id="profile-slider-btn" aria-label="القائمة الشخصية" class="btn-main p-2 rounded-full">
+                        <i class="fas fa-bars text-xl" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Sidebar -->
+    <div id="profile-sidebar-container"></div>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <h2 class="label-section">
+            عداد التسبيح
+        </h2>
+        <!-- Tasbeeh Counter Section -->
+        <section class="bg-cream/90 dark:bg-darkbg/90 rounded-2xl border-2 border-golden-light dark:border-golden p-4 md:p-6 mb-8 transition-all duration-300">
+            <div class="space-y-6">
+                <!-- Counter/progress ring at the top -->
+                <div class="flex flex-col items-center gap-4">
+                    <div class="relative flex flex-col items-center justify-center mb-2">
+                        <svg class="progress-ring drop-shadow-lg" width="180" height="180">
+                            <circle
+                                class="progress-ring__bg"
+                                stroke="#e0c97f33"
+                                stroke-width="16"
+                                fill="#fffbe6"
+                                r="75"
+                                cx="90"
+                                cy="90"
+                            />
+                            <circle
+                                class="progress-ring__circle"
+                                stroke="#a67c2e"
+                                stroke-width="16"
+                                fill="transparent"
+                                r="75"
+                                cx="90"
+                                cy="90"
+                                style="stroke-dasharray:471.238, 471.238; stroke-dashoffset:471.238; transition: stroke-dashoffset 0.3s; filter: drop-shadow(0 2px 8px #e0c97f55);"
+                            />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center select-none cursor-pointer" id="progress-circle-click">
+                            <div id="counter-display" class="text-5xl md:text-6xl font-bold text-golden dark:text-golden-light transition-all duration-300">0</div>
+                            <div id="progress-percentage" class="text-golden-dark dark:text-golden-light text-lg mt-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Dhikr type and custom input -->
+                <div class="flex flex-col items-center gap-2 w-full md:w-2/3 mx-auto">
+                    <label for="tasbeeh-type-select" class="text-golden-dark dark:text-golden-light">نوع الذكر:</label>
+                    <div class="dhikr-select-wrapper">
+                        <button class="delete-dhikr-btn" title="حذف الذكر">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <select id="tasbeeh-type-select" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden focus:border-golden-dark dark:focus:border-golden-dark rounded-2xl px-5 py-3 text-golden-dark dark:text-golden-light focus:outline-none focus:ring-4 focus:ring-golden/20 text-lg font-bold transition-all duration-200 shadow-sm">
+                        <option value="سبحان الله">سبحان الله</option>
+                        <option value="الحمد لله">الحمد لله</option>
+                        <option value="الله أكبر">الله أكبر</option>
+                        <option value="لا إله إلا الله">لا إله إلا الله</option>
+                        <option value="لا حول ولا قوة إلا بالله">لا حول ولا قوة إلا بالله</option>
+                        <option value="أستغفر الله">أستغفر الله</option>
+                        <option value="سبحان الله وبحمده">سبحان الله وبحمده</option>
+                        <option value="سبحان الله العظيم">سبحان الله العظيم</option>
+                        <option value="اللهم صل وسلم على نبينا محمد">اللهم صل وسلم على نبينا محمد</option>
+                        <option value="اللهم اغفر لي">اللهم اغفر لي</option>
+                        <option value="إضافة ذكر مخصص...">إضافة ذكر مخصص...</option>
+                    </select>
+                    </div>
+                    <div id="custom-dhikr-container" class="custom-dhikr-container mt-4">
+                        <label for="custom-dhikr" class="custom-dhikr-label mb-2 text-golden-dark dark:text-golden-light">أدخل الذكر المخصص:</label>
+                        <div id="custom-dhikr-input-row" class="custom-dhikr-input-row">
+                            <input type="text" id="custom-dhikr" class="custom-dhikr-input" placeholder="اكتب الذكر هنا...">
+                            <button id="add-custom-dhikr-btn" class="btn-main custom-dhikr-add-btn" title="إضافة">
+                                إضافة
+                            </button>
+                        </div>
+                        <div id="custom-dhikr-list" class="custom-dhikr-list"></div>
+                    </div>
+                </div>
+                <!-- Target count and custom input -->
+                <div class="flex flex-col items-center gap-2 w-full md:w-2/3 mx-auto">
+                    <label for="target-select" class="text-golden-dark dark:text-golden-light">العدد المطلوب:</label>
+                    <select id="target-select" class="w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden focus:border-golden-dark dark:focus:border-golden-dark rounded-xl px-4 py-2.5 text-golden-dark dark:text-golden-light focus:outline-none focus:ring-4 focus:ring-golden/20 text-lg font-bold transition-all duration-200 shadow-sm" style="min-height:2.75rem;">
+                        <option value="33">33</option>
+                        <option value="100">100</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                        <option value="custom">مخصص</option>
+                        <option value="unlimited">غير محدود</option>
+                    </select>
+                    <div id="custom-target-container" class="custom-target-container">
+                        <label for="custom-target" class="custom-target-label">أدخل العدد المطلوب:</label>
+                        <input type="number" id="custom-target" min="1" class="custom-target-input w-full bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden focus:border-golden-dark dark:focus:border-golden-dark rounded-2xl px-5 py-3 text-golden-dark dark:text-golden-light focus:outline-none focus:ring-4 focus:ring-golden/20 text-lg font-bold transition-all duration-200 shadow-sm" />
+                    </div>
+                </div>
+                <!-- Reset and Count buttons at the bottom -->
+                <div class="flex justify-center gap-4">
+                    <button id="count-btn" class="bg-golden-light dark:bg-golden text-white px-8 py-3 md:px-10 md:py-4 rounded-2xl shadow-lg hover:bg-golden-dark dark:hover:bg-golden-dark focus:outline-none focus:ring-4 focus:ring-golden/30 text-xl font-bold flex items-center gap-2 transition-all duration-200">
+                        <i class="fas fa-plus-circle text-2xl"></i>
+                        عد
+                    </button>
+                    <button id="reset-btn" class="bg-white dark:bg-darkbg border-2 border-golden-light dark:border-golden text-golden-dark dark:text-golden-light px-6 py-2 md:px-8 md:py-3 rounded-xl shadow hover:shadow-md hover:bg-golden-light/10 dark:hover:bg-golden/10 focus:outline-none focus:ring-2 focus:ring-golden/20 text-lg flex items-center gap-2 transition-all duration-200">
+                        <i class="fas fa-undo-alt"></i>
+                        إعادة
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-golden-light/20 dark:bg-golden-dark/20 text-golden-dark dark:text-golden-light py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0 text-center md:text-right">
+                    <h3 class="text-xl font-bold mb-1">تطبيق الأذكار</h3>
+                    <p class="text-golden dark:text-golden-light/80 text-sm">تطبيق متكامل للأذكار وأوقات الصلاة</p>
+                    <div class="hijri-date text-sm mt-1" lang="ar">
+                      التاريخ الهجري: <span id="hijri-date-display">--/--/----</span>
+                    </div>
+                </div>
+                <div class="flex gap-4 mb-4 md:mb-0">
+                    <a href="#" aria-label="Facebook" class="footer-social-link">
+                        <i class="fab fa-facebook-f text-lg"></i>
+                    </a>
+                    <a href="#" aria-label="Twitter" class="footer-social-link">
+                        <i class="fab fa-twitter text-lg"></i>
+                    </a>
+                    <a href="#" aria-label="Instagram" class="footer-social-link">
+                        <i class="fab fa-instagram text-lg"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-golden/20 dark:border-golden-light/20 mt-4 pt-4 text-center text-sm">
+                <p>© 2025 تطبيق الأذكار. جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+   
+    <!-- Scripts -->
+    <script src="js/profiles.js"></script>
+    <script src="js/tasbeeh-inline.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/sidebar-ui.js"></script>
+</body>
+</html>

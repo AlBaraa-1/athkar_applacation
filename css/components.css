@@ -1,0 +1,66 @@
+.qibla-compass {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qibla-arrow {
+    position: absolute;
+    width: 6px;
+    height: 90px;
+    background: linear-gradient(to bottom, #c8a655 50%, #8b6b2e 50%);
+    transform-origin: center center;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transition: transform 0.2s ease-out;
+    z-index: 2;
+}
+
+.qibla-center {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #c8a655;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.qibla-label {
+    position: absolute;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #8b6b2e;
+}
+
+.qibla-n { top: 10px; }
+.qibla-s { bottom: 10px; }
+.qibla-e { right: 10px; }
+.qibla-w { left: 10px; }
+
+@media (max-width: 640px) {
+    .qibla-compass {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .qibla-arrow {
+        height: 65px;
+    }
+    
+    .qibla-label {
+        font-size: 0.875rem;
+    }
+}
+
+.dark .qibla-compass {
+    background: rgba(30, 30, 30, 0.9);
+}
+
+.dark .qibla-label {
+    color: #c8a655;
+}

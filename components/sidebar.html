@@ -44,29 +44,26 @@
       <li>
         <a href="morning.html" class="nav-link">
           <i class="fas fa-sun"></i>
-          <span>أذكار الصباح</span>
+          <span data-i18n="morning_evening_adhkar">أذكار الصباح/المساء</span>
         </a>
       </li>
       <li>
-        <a href="evening.html" class="nav-link">
-          <i class="fas fa-moon"></i>
-          <span>أذكار المساء</span>
+        <a href="statistics.html" class="nav-link">
+          <i class="fas fa-chart-bar"></i>
+          <span>الإحصائيات</span>
+        </a>
+      </li>
+      <li>
+        <a href="settings.html" class="nav-link">
+          <i class="fas fa-cog"></i>
+          <span data-i18n="settings">الإعدادات</span>
         </a>
       </li>
     </ul>
   </nav>
   <!-- Enhanced Settings -->
   <div class="p-6">
-    <h4 class="text-lg font-bold text-golden-dark dark:text-golden-light mb-4">الإعدادات</h4>
-    <div class="settings-group">
-      <label class="settings-label">طريقة الحساب</label>
-      <select id="calculation-method" class="settings-select">
-        <option value="1">رابطة العالم الإسلامي</option>
-        <option value="2">جامعة أم القرى</option>
-        <option value="3">الهيئة العامة المصرية</option>
-        <option value="4" selected>الرئاسة العامة للبحوث</option>
-      </select>
-    </div>
+    <h4 class="text-lg font-bold text-golden-dark dark:text-golden-light mb-4" data-i18n="quick_settings">إعدادات سريعة</h4>
     <div class="settings-group mt-4">
       <label class="settings-label">اللغة</label>
       <select id="language-select" class="settings-select">
@@ -87,7 +84,16 @@
         </label>
       </div>
     </div>
+    <div class="settings-group mt-4">
+      <label class="settings-label" data-i18n="font_size">حجم الخط</label>
+      <select id="sidebar-font-size" class="settings-select">
+        <option value="small" data-i18n="font_size_small">صغير</option>
+        <option value="medium" data-i18n="font_size_medium" selected>متوسط</option>
+        <option value="large" data-i18n="font_size_large">كبير</option>
+      </select>
+    </div>
   </div>
 </aside>
 
 <!-- Sidebar and navigation custom styles moved to css/custom.css -->
+<!-- Example: <span data-i18n="settings"></span> -->

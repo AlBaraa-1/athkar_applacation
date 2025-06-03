@@ -280,7 +280,7 @@ button:hover {
 }
 
 body.darkmode button {
-  background: linear-gradient(90deg, #a67c2e 0%, #7c5c1e 100%) !important;
+  background: linear-gradient(90deg, #745e35 0%, #7c5c1e 100%) !important;
   color: #fffbe6 !important;
   border: 2px solid #e0c97f !important;
 }

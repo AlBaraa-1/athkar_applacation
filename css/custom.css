@@ -287,20 +287,19 @@
 .custom-dhikr-container {
     display: none;
     flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 2px solid rgba(200, 166, 85, 0.2);
+    margin-top: 1rem;
 }
 .custom-dhikr-label {
-    color: #a67c2e;
-    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
 }
 .custom-dhikr-input-row {
     display: flex;
-    width: 100%;
     gap: 0.5rem;
-    align-items: center;
-    flex-wrap: wrap;
+    width: 100%;
 }
 .custom-dhikr-input {
     min-width: 160px;
@@ -325,10 +324,10 @@
     background: #a67c2e;
 }
 .custom-dhikr-list {
+    margin-top: 0.5rem;
     display: flex;
-    gap: 0.5rem;
-    align-items: center;
     flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .custom-target-container {
@@ -697,15 +696,114 @@ body.dark .footer-social-link:hover {
   transform: scale(0.95);
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .custom-dhikr-select-row select {
-    font-size: 0.95rem;
-  }
-  .delete-custom-dhikr {
-    width: 1.6rem;
-    height: 1.6rem;
-    min-width: 1.6rem;
-    font-size: 0.9rem;
-  }
+/* New styles for custom dhikr selection with left-aligned delete button */
+.dhikr-select-container {
+    position: relative;
+    width: 100%;
+}
+
+.dhikr-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.delete-dhikr-btn {
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #dc2626;
+    border: 2px solid #dc2626;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 2.75rem;
+    opacity: 0;
+    display: flex;
+    visibility: hidden;
+    transform: translateX(1rem);
+    width: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.delete-dhikr-btn:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.dark .delete-dhikr-btn {
+    background: #23201a;
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+.dark .delete-dhikr-btn:hover {
+    background: #ef4444;
+    color: #23201a;
+}
+
+#tasbeeh-type-select {
+    flex: 1;
+    transition: all 0.3s ease;
+    height: 2.75rem; /* Set fixed height for consistency */
+}
+
+.dhikr-select-wrapper.has-custom .delete-dhikr-btn {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    width: 2.75rem;
+    padding: 0 0.75rem;
+    margin-left: 0.5rem;
+}
+
+/* Custom dhikr input success feedback */
+.input-success {
+  border-color: #43b66e !important;
+  box-shadow: 0 0 0 2px #43b66e55;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Custom dhikr list item and delete button UX */
+.custom-dhikr-list-item {
+  display: inline-flex;
+  align-items: center;
+  background: #fffbe6;
+  color: #7c5c1e;
+  border-radius: 8px;
+  padding: 0.4rem 1rem 0.4rem 0.4rem;
+  margin: 0.2rem 0.3rem 0.2rem 0;
+  font-size: 1rem;
+  box-shadow: 0 1px 4px #e0c97f22;
+  transition: opacity 0.3s, transform 0.3s;
+}
+body.darkmode .custom-dhikr-list-item {
+  background: #2a241b;
+  color: #e0c97f;
+}
+.custom-dhikr-remove-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  outline: none;
+  display: flex;
+  align-items: center;
+}
+.custom-dhikr-remove-btn:hover, .custom-dhikr-remove-btn:focus {
+  background: #ffeaea;
+  color: #a60000;
+}
+body.darkmode .custom-dhikr-remove-btn:hover, body.darkmode .custom-dhikr-remove-btn:focus {
+  background: #3a2f1a;
+  color: #ff5252;
 }
